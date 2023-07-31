@@ -1,0 +1,19 @@
+{
+  "thứ hai": "ENT",
+  "thứ ba": "ENT",
+  "thứ tư": "ENT",
+  "thứ năm": "ENT",
+  "thứ sáu": "ENT",
+  "thứ bảy": "ENT",
+  "chủ nhật": "ENT",
+  "một":  "NUM",
+  "hai":  "NUM",
+  "ba":  "NUM",
+  "bốn":  "NUM",
+  "năm":  "NUM",
+  "sáu":  "NUM",
+  "bảy":  "NUM",
+  "tám":  "NUM",
+  "chín":  "NUM",
+  "mười":  "NUM"
+}

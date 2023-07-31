@@ -1,0 +1,13 @@
+#data
+pretrained
+__pycache__
+.idea
+*/.idea
+*/*/.idea
+logs
+checkpoint
+data/cache
+.ipynb_checkpoints
+.DS_Store
+khangEnv/
+TTS
