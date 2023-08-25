@@ -22,7 +22,7 @@ class addWord(BaseRoute):
     def add_word_func(self, data: AddData):
         success = self.pipeline(data.word, data.translation)
         if success:
-            return "Added: " + data.word + " - " + data.translation
+            return "Added"
         else:
             return "Failed"
     

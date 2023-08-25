@@ -12,6 +12,14 @@ from data.newWord import add_word_to_dict
 
 # import class GraphService
 from GraphTranslation.services.graph_service import GraphService
+# import translation pipeline
+from GraphTranslation.pipeline.translation import TranslationPipeline
+# import translator
+from pipeline.translation import Translator
+from celery import Celery
+import logging
+
+app = Celery('addword', broker='redis://127.0.0.1/0', backend='redis://127.0.0.1/0')
 
 class Adder(BaseServiceSingleton):
     def __init__(self):
@@ -20,6 +28,14 @@ class Adder(BaseServiceSingleton):
         self.ba = []
 
     def add_word_func(self, word, translation):
+        # remove active tasks
+        i = app.control.inspect()
+        jobs = i.active()
+        for hostname in jobs:
+            tasks = jobs[hostname]
+            for task in tasks:
+                app.control.revoke(task['id'], terminate=True)
+
         with open("data/dictionary/dict.ba", "r", encoding="utf-8") as f:
             self.ba = [line.strip() for line in f.readlines()]
         with open("data/dictionary/dict.vi", "r", encoding="utf-8") as f:
@@ -35,10 +51,12 @@ class Adder(BaseServiceSingleton):
         # call add_word_to_dict function
         add_word_to_dict(word, translation)
 
-        gs = GraphService()
         # create graph.json
-        print("creating graph")
-        gs.load_graph_with_path()
+        # log out terminal
+        logging.info("creating graph")
+        # print("creating graph")
+        self.load_graph.delay()
+        logging.info("graph created")
         
         # thread1 = thread(gs.load_graph, 2)
         # thread1.start()
@@ -48,9 +66,29 @@ class Adder(BaseServiceSingleton):
         res = self.add_word_func(word, translation)
         return res
     
+    @app.task
+    def load_graph():
+        activation_path = "data/cache/activation.txt"
+        if os.path.exists(activation_path):
+            print("removing activation file...")
+            os.remove(activation_path)
+        gs = GraphService()
+        gs.load_graph_with_path()
+
+        transPipeline = TranslationPipeline()
+        transPipeline.graph_service = gs
+
+        translator = Translator()
+        translator.graph_translator = transPipeline
+        translator.graph_translator.eval()
+
+        return f"new words added to dictionary"
+
 if __name__ == "__main__":
     adder = Adder()
+    
     if(adder("nothing", "special")):
         print("added")
     else:
         print("failed")
+    # load_graph.delay()

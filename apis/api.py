@@ -6,6 +6,7 @@ import os
 from apis.routes.translation import TranslateRoute
 # from apis.routes.texttospeech import SpeakRoute
 from apis.routes.addword import addWord
+from apis.routes.update import updateWord
 # from fastapi.middleware.cors import CORSMiddleware
 
 from starlette.middleware.cors import CORSMiddleware
@@ -30,3 +31,4 @@ app.mount("/to-speech", StaticFiles(directory=os.path.abspath("to-speech")), nam
 app.include_router(TranslateRoute().router)
 #app.include_router(SpeakRoute().router)
 app.include_router(addWord().router)
+app.include_router(updateWord().router)

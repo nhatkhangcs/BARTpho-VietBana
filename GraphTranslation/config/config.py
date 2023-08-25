@@ -24,7 +24,7 @@ class Config(metaclass=Singleton):
                       ("data/dictionary/vi_0504_w.txt", "data/dictionary/bana_0504_w.txt"),
                       ("data/dictionary/vi_kriem.txt", "data/dictionary/bana_kriem.txt")]
     graph_cache_path = "data/cache/graph.json"
-    graph_cache_path_1 = "data/cache/graph_1.json"
+    activate_path = "data/cache/activation.txt"
     logging_folder = "logs"
     # vncorenlp_host = "http://172.28.0.23"
     vncorenlp_host = "http://localhost"

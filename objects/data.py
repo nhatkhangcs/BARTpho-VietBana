@@ -12,10 +12,11 @@ class Data(BaseModel):
         self.model = model
 
 class AddData(BaseModel):
-    word: str
-    translation: str
+    # word and translation are both array type
+    word: List[str]
+    translation: List[str]
 
-    def __init__(self, word: str, translation: str):
+    def __init__(self, word, translation):
         super(AddData, self).__init__(word=word, translation=translation)
         self.word = word
         self.translation = translation
