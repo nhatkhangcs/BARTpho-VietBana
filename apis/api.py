@@ -7,6 +7,7 @@ from apis.routes.translation import TranslateRoute
 # from apis.routes.texttospeech import SpeakRoute
 from apis.routes.addword import addWord
 from apis.routes.update import updateWord
+from apis.routes.changeCorpus import changeCorpus
 # from fastapi.middleware.cors import CORSMiddleware
 
 from starlette.middleware.cors import CORSMiddleware
@@ -32,3 +33,4 @@ app.include_router(TranslateRoute().router)
 #app.include_router(SpeakRoute().router)
 app.include_router(addWord().router)
 app.include_router(updateWord().router)
+app.include_router(changeCorpus().router)

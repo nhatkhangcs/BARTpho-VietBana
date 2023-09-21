@@ -1,6 +1,5 @@
 import os
 import sys
-import asyncio
 script_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.abspath(os.path.join(script_dir, '..'))
 grand_dir = os.path.abspath(os.path.join(parent_dir, '..'))
@@ -16,10 +15,10 @@ from GraphTranslation.services.graph_service import GraphService
 from GraphTranslation.pipeline.translation import TranslationPipeline
 # import translator
 from pipeline.translation import Translator
-from celery import Celery
+# from celery import Celery
 import logging
 
-app = Celery('addword', broker='redis://127.0.0.1/0', backend='redis://127.0.0.1/0')
+# app = Celery('addword', broker='redis://127.0.0.1/0', backend='redis://127.0.0.1/0')
 
 class Adder(BaseServiceSingleton):
     def __init__(self):
@@ -29,12 +28,12 @@ class Adder(BaseServiceSingleton):
 
     def add_word_func(self, word, translation):
         # remove active tasks
-        i = app.control.inspect()
-        jobs = i.active()
-        for hostname in jobs:
-            tasks = jobs[hostname]
-            for task in tasks:
-                app.control.revoke(task['id'], terminate=True)
+        # i = app.control.inspect()
+        # jobs = i.active()
+        # for hostname in jobs:
+        #     tasks = jobs[hostname]
+        #     for task in tasks:
+        #         app.control.revoke(task['id'], terminate=True)
 
         with open("data/dictionary/dict.ba", "r", encoding="utf-8") as f:
             self.ba = [line.strip() for line in f.readlines()]
@@ -55,7 +54,7 @@ class Adder(BaseServiceSingleton):
         # log out terminal
         logging.info("creating graph")
         # print("creating graph")
-        self.load_graph.delay()
+        self.load_graph()
         logging.info("graph created")
         
         # thread1 = thread(gs.load_graph, 2)
@@ -66,8 +65,7 @@ class Adder(BaseServiceSingleton):
         res = self.add_word_func(word, translation)
         return res
     
-    @app.task
-    def load_graph():
+    def load_graph(self):
         activation_path = "data/cache/activation.txt"
         if os.path.exists(activation_path):
             print("removing activation file...")
@@ -87,7 +85,7 @@ class Adder(BaseServiceSingleton):
 if __name__ == "__main__":
     adder = Adder()
     
-    if(adder("nothing", "special")):
+    if(adder(["nothing"], ["special"])):
         print("added")
     else:
         print("failed")

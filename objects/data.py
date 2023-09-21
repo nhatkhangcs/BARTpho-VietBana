@@ -1,7 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional, List
 
-
 class Data(BaseModel):
     text: str
     model: Optional[str]
@@ -20,6 +19,13 @@ class AddData(BaseModel):
         super(AddData, self).__init__(word=word, translation=translation)
         self.word = word
         self.translation = translation
+
+class Corpus(BaseModel):
+    area: str
+
+    def __init__(self, text: str):
+        super(Corpus, self).__init__(area=text)
+        self.area = text
 
 class OutData(BaseModel):
     src: str

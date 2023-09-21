@@ -3,12 +3,7 @@ setproctitle.setproctitle('bahnar_tts_nmt')
 import uvicorn
 from utils.logger import setup_logging
 
-NHATKHANG1 = "192.168.1.3"
-NHATKHANG5G = ""
-ROOM922 = ""
-HCMUT1 = ""
-HCMUT2 = ""
-
+NHATKHANG1 = "192.168.2.26"
 
 def main():
     setup_logging()

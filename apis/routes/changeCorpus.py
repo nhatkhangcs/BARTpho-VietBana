@@ -1,4 +1,3 @@
-# get add_word_to_dict function from add_word.py
 import os
 import sys
 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -8,20 +7,19 @@ grand_dir = os.path.abspath(os.path.join(parent_dir, '..'))
 sys.path.extend([script_dir, parent_dir, grand_dir])
 
 from GraphTranslation.apis.routes.base_route import BaseRoute
-from objects.data import AddData
+from objects.data import Corpus
 
-# import Adder
-from pipeline.addword import Adder
+from pipeline.changeCorpus import ChangeCorpus
 
-class addWord(BaseRoute):
+class changeCorpus(BaseRoute):
     def __init__(self):
-        super(addWord, self).__init__(prefix="/addword")
-        self.pipeline = Adder()
+        super(changeCorpus, self).__init__(prefix="/changeCorpus")
+        self.pipeline = ChangeCorpus()
 
-    def add_word_func(self, data: AddData):
-        success = self.pipeline(data.word, data.translation)
+    def change_corpus_func(self, data: Corpus):
+        success = self.pipeline(data.area)
         if success:
-            return "Added"
+            return "Changed"
         else:
             return "Failed"
     
@@ -29,5 +27,5 @@ class addWord(BaseRoute):
         router = self.router
 
         @router.post("/vi_ba")
-        async def add_word(data: AddData):
-            return await self.wait(self.add_word_func, data)
+        async def change_corpus(data: Corpus):
+            return await self.wait(self.change_corpus_func, data)
