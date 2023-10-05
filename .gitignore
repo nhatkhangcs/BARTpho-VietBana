@@ -10,5 +10,5 @@ data/cache
 .ipynb_checkpoints
 .DS_Store
 khangEnv/
-TTS
-testvncore
+TTS/
+testvncore/
