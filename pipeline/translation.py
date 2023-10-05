@@ -49,10 +49,14 @@ class Translator(BaseServiceSingleton):
             if model == "BART_CHUNK":
                 mapped_words = [w for w in translation_graph.src_sent if len(w.translations) > 0 or w.is_ner
                                 or w.is_end_sent or w.is_end_paragraph or w.is_punctuation or w.is_conjunction]
+                print("MAPPED WORDS:", mapped_words)
+                
             else:
                 mapped_words = [w for w in translation_graph.src_sent if w.is_ner
                                 or w.is_end_sent or w.is_end_paragraph or w.is_punctuation or w.is_conjunction]
             result = []
+            #print(translation_graph.src_sent.words)
+            #print(mapped_words)
             src_mapping = []
             i = 0
             while i < len(mapped_words) - 1:
@@ -139,4 +143,4 @@ class Translator(BaseServiceSingleton):
 
 if __name__ == "__main__":
     translator = Translator()
-    print(translator("nothing"))
+    print(translator("xin chào và anh ấy là Vĩnh Phúc"))

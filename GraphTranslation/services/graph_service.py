@@ -254,7 +254,9 @@ class GraphService(BaseServiceSingleton):
             f"LOAD GRAPH FROM CACHE at {self.config.graph_cache_path}")
         # self.build_translation_re()
 
-    
+    '''
+    Khang
+    '''
     def load_graph_with_path(self): 
         if not os.path.exists(self.config.activate_path):
             self.load_punctuation()

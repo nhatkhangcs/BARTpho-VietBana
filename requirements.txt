@@ -110,7 +110,7 @@ scikit-learn
 scipy
 sentencepiece
 six
-sklearn
+scikit-learn
 sklearn-crfsuite
 smart-open
 sniffio
