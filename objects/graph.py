@@ -12,6 +12,7 @@ from GraphTranslation.utils.utils import norm_word, word_distance
 from GraphTranslation.common.languages import Languages
 from GraphTranslation.common.data_types import RelationTypes, NodeType
 from GraphTranslation.common.common_keys import *
+from GraphTranslation.config.config import Config
 
 
 class Word:
@@ -321,6 +322,8 @@ class SentWord(Word):
         self.head = None
         self.type = NodeType.SENT_WORD
 
+        self.dst_word = ""
+
     @property
     def original_upper(self):
         original_text = self.original_text
@@ -411,6 +414,14 @@ class SentWord(Word):
     def is_punctuation(self):
         return self.text in string.punctuation + "–"
 
+    @property # For checking the the word is conjunction or not because conjunction is base on dictionary
+    def is_conjunction(self):
+        return self.dst_word != ""
+
+    @property
+    def is_in_dictionary(self):
+        return self.dst_word != ""
+
     @property
     def info(self):
         return {
@@ -421,7 +432,8 @@ class SentWord(Word):
             "pre": self.pre_word,
             "next": self.next_word,
             "ner": self.ner_label,
-            "pos": self.pos
+            "pos": self.pos,
+            "mapped_word": self.dst_word
         }
 
     def __contains__(self, item):
@@ -450,6 +462,7 @@ class SentWord(Word):
         # print("MAPPING SCORE", self.text, mapping_relations)
         # return [r.dst for node in self.info_nodes for r in node.get_relation_by_type(RelationTypes.MAPPING)]
         # return [item[0] for item in translate_relations]
+
         return [r.dst for node in self.info_nodes for r in node.get_relation_by_type(RelationTypes.TRANSLATE)
                 if r.count > 0]
 
@@ -1459,11 +1472,10 @@ class TranslationGraph(Graph):
         self.load_words(dst_sent)
         self._co_occurrence_relations = None
         self.check_valid_anchor = (lambda x: True) if check_valid_anchor is None else check_valid_anchor
-        print()
 
     def update_src_sentence(self):
         if self.src_sent is not None:
-            self.src_sent.update_mapped_words()
+            self.src_sent.update_mapped_words() # Update mapping word in here
 
     @staticmethod
     def update_sentence_relation(relation: Relation):

@@ -43,51 +43,55 @@ class Translator(BaseServiceSingleton):
             s = time.time()
             sentence = self.graph_translator.nlp_core_service.annotate(text, language=Languages.SRC)
             print("NLP CORE TIME", time.time() - s)
-            sentence = self.graph_translator.graph_service.add_info_node(sentence)
+
+            sentence = self.graph_translator.graph_service.add_info_node(sentence) # Update info about the NER
+
             translation_graph = TranslationGraph(src_sent=sentence)
-            translation_graph.update_src_sentence()
+            translation_graph.update_src_sentence()         # Vị trí cần thực hiện việc translate các token trong dictionary
             if model == "BART_CHUNK":
                 mapped_words = [w for w in translation_graph.src_sent if len(w.translations) > 0 or w.is_ner
-                                or w.is_end_sent or w.is_end_paragraph or w.is_punctuation or w.is_conjunction]
-                print("MAPPED WORDS:", mapped_words)
-                
+                                or w.is_end_sent or w.is_end_paragraph or w.is_punctuation or w.is_conjunction or w.is_in_dictionary]
             else:
                 mapped_words = [w for w in translation_graph.src_sent if w.is_ner
                                 or w.is_end_sent or w.is_end_paragraph or w.is_punctuation or w.is_conjunction]
+
             result = []
-            #print(translation_graph.src_sent.words)
-            #print(mapped_words)
-            src_mapping = []
+            src_mapping = [] # Có vẻ như không có dùng
             i = 0
             while i < len(mapped_words) - 1:
                 src_from_node = mapped_words[i]
-                if src_from_node.is_ner:
-                    ner_text = self.graph_translator.translate_ner(src_from_node)
+                if src_from_node.is_ner:    # Apply các token là NER (Name entity or Number)
+                    ner_text = self.graph_translator.translate_ner(src_from_node) # Translating the dictionary in HERE
                     if src_from_node.ner_label in [NUM]:
                         result.append(ner_text.lower())
                     else:
                         result.append(ner_text)
-                else:
-                    translations = src_from_node.translations
-                    if len(translations) == 1:
-                        result.append(translations[0].text)
-                    else:
-                        result.append(translations)
-                src_mapping.append([src_from_node])
+                else:   # Apply the token không phải NER
+                    translations = src_from_node.dst_word
+                    result.append(translations)
+                    # if len(translations) == 1:
+                    #     result.append(translations[0].text)
+                    # else:
+                    #     result.append(translations)
+
+                src_mapping.append([src_from_node]) # Có vẻ như không có dùng
                 src_to_node = mapped_words[i + 1]
                 if src_from_node.end_index < src_to_node.begin_index - 1:
                     s = time.time()
                     chunk = translation_graph.src_sent.get_chunk(src_from_node.end_index,
                                                                  src_to_node.begin_index - 1)
+                    
                     if chunk is not None:
                         chunk_text = chunk.text
                         chunk_text = chunk_text.replace("//@", "").replace("/@", "").replace("@", "").replace(".", "").strip()
                         if len(chunk_text) > 0:
-                            translated_chunk = self.model_translator.translate_cache(chunk_text)
+                            translated_chunk = self.model_translator.translate_cache(chunk_text) # Using BARTPho translation
                             result.append(translated_chunk)
                             print(f"CHUNK TRANSLATE {chunk.text} -> {translated_chunk} : {time.time() - s}")
                 i += 1
 
+            # print(result)
+            ## Phần dưới này không có tác dụng
             if len(result) >= 3:
                 for i in range(len(result)):
                     if not isinstance(result[i], str):
@@ -96,6 +100,7 @@ class Translator(BaseServiceSingleton):
                             before_word = result[i - 1]
                         else:
                             before_word = None
+
                         if i < len(result) - 1 and isinstance(result[i + 1], str):
                             next_word = result[i + 1]
                         else:
@@ -110,10 +115,13 @@ class Translator(BaseServiceSingleton):
                             before_word = before_word.split()[-1]
                             before_word = self.graph_translator.graph_service.graph \
                                 .get_node_by_text(before_word, language=Languages.DST)
+                            
                         if next_word is not None:
                             next_word = next_word.split()[0]
                             next_word = self.graph_translator.graph_service.graph\
                                 .get_node_by_text(next_word, language=Languages.DST)
+                            
+                        
                         for j, candidate in enumerate(candidates):
                             if before_word is not None and candidate.has_last_word(before_word, distance_range=(0, 3)):
                                 scores[j] += 1
@@ -132,6 +140,7 @@ class Translator(BaseServiceSingleton):
                     if i > 0 and result[i-1].endswith("/@") or result[i-1].endswith("//@"):
                         result[i] = result[i].capitalize()
             output = result
+
             output = "  ".join(output).replace("//@", "\n").replace("/@", ".").replace("@", "")
             while "  " in output or ". ." in output:
                 output = output.replace("  ", " ").replace(". .", ".")
@@ -143,4 +152,4 @@ class Translator(BaseServiceSingleton):
 
 if __name__ == "__main__":
     translator = Translator()
-    print(translator("xin chào và anh ấy là Vĩnh Phúc"))
+    print(translator("xin chào và anh ấy là Vĩnh Phúc."))
