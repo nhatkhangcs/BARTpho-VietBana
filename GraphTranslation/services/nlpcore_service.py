@@ -124,13 +124,14 @@ class SrcNLPCoreService(NLPCoreService):
         # Cắt lại các từ theo dictionary (Cắt lại token sao cho chúng có thể xuất hiện trong dictionary càng nhiều càng tốt)
         new_words = [w for w in words]
         for n_gram in range(self.max_gram, 0, -1):
-            candidates = self.word_n_grams(words, n=n_gram)
+            candidates = self.word_n_grams(words, n=n_gram) # Lấy ra combination của của các từ
             for candidate in candidates:
                 if candidate.text in mapped_words:
                     new_words = [w for w in new_words if w not in candidate]
                     candidate.dst_word = self.viet2bana_dict[candidate.text]
                     new_words.append(candidate)
         new_words.sort(key=lambda w: w.begin)
+        # print("Word after sort:", [i.text for i in new_words])
 
         # Gắn lại các pre word và next word cho từng SentWord
         for i in range(len(new_words)):
@@ -150,6 +151,26 @@ class SrcNLPCoreService(NLPCoreService):
 
         sent = Sentence(words)
         return sent
+    
+    # To filter the NER tokens and split all other token into word by word
+    def NER_filter(self, list_wseg):
+        # ner_label is not None and self.ner_label != "O"
+        if len(list_wseg) == 0:
+            return list_wseg
+
+        new_list = []
+        for token in list_wseg:
+            if token['nerLabel'] == "O":
+                for idx, word in enumerate(token['form'].split("_")):
+                    wordinfo = {key:value for key, value in token.items()}
+                    wordinfo['index'] = len(new_list) + 1
+                    wordinfo['form'] = word
+                    new_list.append(wordinfo)
+            else:
+                new_list.append(token)
+        
+        return new_list
+
 
     def _annotate(self, text):
         text = text.strip()
@@ -167,6 +188,8 @@ class SrcNLPCoreService(NLPCoreService):
             p_sentences = self.nlpcore_connector.annotate(text=paragraph)["sentences"] # Trả về NER và posTag of each token
 
             for sentence in p_sentences:
+                sentence = self.NER_filter(sentence)
+                print("Word segmentation: ", [f"{i['index']}:{i['form']}" for i in sentence])
                 offset = len(words) - 1
                 for word in sentence:
                     word["index"] += offset
