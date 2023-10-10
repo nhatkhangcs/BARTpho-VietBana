@@ -18,7 +18,7 @@ There is also a colab file at <trainer_notebook.ipynb> guiding training process.
 * Checkpoint model: 
   The current best model is aligned_bartpho model. the checkpoint is stored at: https://drive.google.com/drive/folders/10M4l95A7ImxfSPtV8JzAWNm5ytrUwOgC?usp=sharing  
 * First: Start VNCoreNLP server at:
-    >vncorenlp -Xmx2g GraphTranslation/vncorenlp/VnCoreNLP-1.1.1.jar -p 9000 -a "wseg,pos,ner,parse"
+    >vncorenlp -Xmx2g "D:\AI Learning\NLP\DA\BARTVIBA\GraphTranslation/vncorenlp/VnCoreNLP-1.1.1.jar" -p 9000 -a "wseg,pos,ner,parse"
 * Then:  Start api server port 8000:
     >python app.py
 * 3 model types:
