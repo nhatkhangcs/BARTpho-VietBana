@@ -13,10 +13,10 @@ from GraphTranslation.services.base_service import BaseServiceSingleton
 from GraphTranslation.services.nlpcore_service import TranslationNLPCoreService
 #from GraphTranslation.utils.utils import word_distance
 #common_keys.py
-from GraphTranslation.common.common_keys import TYPE, CO_OCCURRENCE_INDEX, WORDS, RELATIONS, DST_N_GRAM_DATA
+#from GraphTranslation.common.common_keys import TYPE, CO_OCCURRENCE_INDEX, WORDS, RELATIONS, DST_N_GRAM_DATA
 
 #pickle.py
-import pickle, codecs
+#import pickle, codecs
 
 
 class GraphService(BaseServiceSingleton):
@@ -25,7 +25,7 @@ class GraphService(BaseServiceSingleton):
         self.graph = Graph()
         self.nlp_core_service = TranslationNLPCoreService(is_train=True)
         self.src_re = None
-        self.load_graph_with_path()
+        self.load_graph()
 
     def eval(self):
         self.nlp_core_service.eval()
@@ -257,27 +257,27 @@ class GraphService(BaseServiceSingleton):
     '''
     Khang
     '''
-    def load_graph_with_path(self): 
-        if not os.path.exists(self.config.activate_path):
-            self.load_punctuation()
-            self.load_from_dictionary()
-            # self.load_from_parallel_corpus()
-            self.load_from_monolingual_corpus()
-            self.load_synonym_dictionary()
-            folder, _ = os.path.split(self.config.activate_path)
-            os.makedirs(folder, exist_ok=True)
-            # create activation.txt file
-            with open(self.config.activate_path, "w", encoding="utf8") as f:
-                f.write("1")
-        graph_dict = self.graph.dict
-        word_jsons = graph_dict[WORDS]
-        relation_jsons = graph_dict[RELATIONS]
-        co_occurrence_index = pickle.loads(codecs.decode(graph_dict[CO_OCCURRENCE_INDEX].encode(), "base64"))
-        self.graph.words = {key: Word.from_json(item) for key, item in word_jsons.items()}
-        self.graph.relations = {key: Relation.get_class(item[TYPE]).from_json(item, self.graph.get_node_by_id) 
-                                for key, item in relation_jsons.items()}
-        self.graph.co_occurrence_index = co_occurrence_index
-        self.graph.dst_n_gram_data = graph_dict[DST_N_GRAM_DATA]
+    # def load_graph_with_path(self): 
+    #     if not os.path.exists(self.config.activate_path):
+    #         self.load_punctuation()
+    #         self.load_from_dictionary()
+    #         # self.load_from_parallel_corpus()
+    #         self.load_from_monolingual_corpus()
+    #         self.load_synonym_dictionary()
+    #         folder, _ = os.path.split(self.config.activate_path)
+    #         os.makedirs(folder, exist_ok=True)
+    #         # create activation.txt file
+    #         with open(self.config.activate_path, "w", encoding="utf8") as f:
+    #             f.write("1")
+    #     graph_dict = self.graph.dict
+    #     word_jsons = graph_dict[WORDS]
+    #     relation_jsons = graph_dict[RELATIONS]
+    #     co_occurrence_index = pickle.loads(codecs.decode(graph_dict[CO_OCCURRENCE_INDEX].encode(), "base64"))
+    #     self.graph.words = {key: Word.from_json(item) for key, item in word_jsons.items()}
+    #     self.graph.relations = {key: Relation.get_class(item[TYPE]).from_json(item, self.graph.get_node_by_id) 
+    #                             for key, item in relation_jsons.items()}
+    #     self.graph.co_occurrence_index = co_occurrence_index
+    #     self.graph.dst_n_gram_data = graph_dict[DST_N_GRAM_DATA]
         # self.build_translation_re()
 
     def get_words(self, text, language=Languages.SRC):

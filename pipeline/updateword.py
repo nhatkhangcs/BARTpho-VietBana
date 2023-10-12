@@ -43,7 +43,7 @@ class Update(BaseServiceSingleton):
         print("creating graph")
         # create port 8001 for the graph service
         
-        gs.load_graph_with_path()
+        gs.load_graph()
         
         # thread1 = thread(gs.load_graph, 2)
         # thread1.start()

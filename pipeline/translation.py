@@ -152,4 +152,4 @@ class Translator(BaseServiceSingleton):
 
 if __name__ == "__main__":
     translator = Translator()
-    print(translator("chiếc máy tính toán"))
+    print(translator("hình như anh ấy đang ở Sa Đéc"))
