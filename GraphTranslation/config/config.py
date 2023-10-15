@@ -7,12 +7,8 @@ from objects.singleton import Singleton
 
 
 class Config(metaclass=Singleton):
-    dst_words_paths = ["data/dictionary/bana_0504_w.txt",
-                       "data/dictionary/norm_kriem.ba",
-                       "data/dictionary/dict.ba"]
-    src_words_paths = ["data/dictionary/vi_0504_w.txt",
-                       "data/dictionary/norm_kriem.vi",
-                       "data/dictionary/dict.vi"]
+    dst_words_paths = ["data/dictionary/dict.ba"]
+    src_words_paths = ["data/dictionary/dict.vi"]
     src_syn_path = "data/synonyms/vi_syn_data_1.json"
     dst_syn_path = None
     src_custom_ner_path = "GraphTranslation/data/custom_ner/vi_ner.json"
@@ -21,8 +17,7 @@ class Config(metaclass=Singleton):
     dst_monolingual_paths = ["data/parallel_corpus/train.ba", "data/parallel_corpus/valid.ba"]
     parallel_paths = [("data/parallel_corpus/train.vi", "data/parallel_corpus/train.ba"),
                       ("data/parallel_corpus/valid.vi", "data/parallel_corpus/valid.ba"),
-                      ("data/dictionary/vi_0504_w.txt", "data/dictionary/bana_0504_w.txt"),
-                      ("data/dictionary/vi_kriem.txt", "data/dictionary/bana_kriem.txt")]
+                      ("data/dictionary/dict.ba", "data/dictionary/dict.vi")]
     graph_cache_path = "data/cache/graph.json"
     graph_cache_path_1 = "data/cache/graph_1.json"
     activate_path = "data/cache/activation.txt"

@@ -414,7 +414,7 @@ class SentWord(Word):
 
     @property
     def is_punctuation(self):
-        return self.text in string.punctuation + "–"
+        return self.text in string.punctuation + "-"
 
     @property # For checking the the word is conjunction or not because conjunction is base on dictionary
     def is_conjunction(self):
@@ -1365,12 +1365,16 @@ class Sentence:
         return self.words
 
     def update_mapped_words(self):
+ 
         for word in self.words:
             # if word.text doesn't contains '@'
             if '@' not in word.text:
                 for node in word.out_relations.values():
                     #print(word.out_relations.values())
-                    if node.type == 'TRANSLATE':
+                    # check if node.dst.text is a punctuation
+                    
+                    
+                    if node.type == 'TRANSLATE' and (word.dst_word == ''):
                         word.dst_word = node.dst.text
                         for info in self.info:
                             #print(info)
