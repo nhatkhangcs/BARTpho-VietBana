@@ -204,6 +204,8 @@ class Word:
         for r in self.out_relations.values():
             if r.type == RelationTypes.TRANSLATE:
                 output += f"({r.dst.text}:{r.dst.id}),"
+        if output[-1] == ",":
+            output = output[:-1]
         output += "]"
         return output
 
@@ -506,7 +508,9 @@ class SentWord(Word):
             for r in node.out_relations.values():
                 if r.type == RelationTypes.TRANSLATE:
                     output += f"({r.dst.text}:{r.dst.id}),"
-            output += "]"
+        if output[-1] == ",":
+            output = output[:-1]
+        output += "]"
         return output
 
 
@@ -1361,7 +1365,20 @@ class Sentence:
         return self.words
 
     def update_mapped_words(self):
-        pass
+        for word in self.words:
+            # if word.text doesn't contains '@'
+            if '@' not in word.text:
+                for node in word.out_relations.values():
+                    #print(word.out_relations.values())
+                    if node.type == 'TRANSLATE':
+                        word.dst_word = node.dst.text
+                        for info in self.info:
+                            #print(info)
+                            #print(info['text'])
+                            #print(word.text)
+                            if info['text'] == word.text:
+                                info['mapped_word'] = node.dst.text
+
 
     @staticmethod
     def from_paths(paths: List[Path]):
