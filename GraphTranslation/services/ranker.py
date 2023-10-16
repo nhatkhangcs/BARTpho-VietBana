@@ -1,20 +1,21 @@
-from rank_bm25 import BM25Okapi
-from tqdm import tqdm
+# from rank_bm25 import BM25Okapi
+# from tqdm import tqdm
 
-from GraphTranslation.common.languages import Languages
-from objects.graph import TranslationGraph
+# from GraphTranslation.common.languages import Languages
+# from objects.graph import TranslationGraph
 from GraphTranslation.services.graph_service import GraphService
 from GraphTranslation.services.base_service import BaseServiceSingleton
 
 
 class Ranker(BaseServiceSingleton):
-    def __init__(self):
+    def __init__(self, area):
         super(Ranker, self).__init__()
         self.index = None
         self.dst_data = None
         self.src_data = None
-        self.graph_service = GraphService()
-        self.load_from_parallel_corpus()
+        self.graph_service = GraphService(area)
+        self.area = area
+        # self.load_from_parallel_corpus()
 
     # def load_from_parallel_corpus(self):
     #     self.logger.debug("GET TRANSLATION SCORE")
@@ -43,8 +44,8 @@ class Ranker(BaseServiceSingleton):
         return output
 
     def search_phrase(self, words):
-        grams = self.n_gram([word.text for word in words])
-        docs = self.search(grams)
+        # grams = self.n_gram([word.text for word in words])
+        # docs = self.search(grams)
         pass
 
     # def load_from_parallel_corpus(self):

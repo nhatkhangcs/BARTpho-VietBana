@@ -7,17 +7,31 @@ from objects.singleton import Singleton
 
 
 class Config(metaclass=Singleton):
-    dst_words_paths = ["data/dictionary/dict.ba"]
-    src_words_paths = ["data/dictionary/dict.vi"]
+    # Binh Dinh
+    BinhDinh = "data/BinhDinh"
+
+    # Gia Lai
+    GiaLai = "data/GiaLai"
+
+    # KonTum
+    KonTum = "data/KonTum"
+
+    dst_words_paths = "dictionary/dict.ba"
+    src_words_paths = "dictionary/dict.vi"
+    src_monolingual_paths = [
+        "parallel_corpus/train.vi", "parallel_corpus/valid.vi"]
+    dst_monolingual_paths = [
+        "parallel_corpus/train.ba", "parallel_corpus/valid.ba"]
+    parallel_paths = [("parallel_corpus/train.vi", "parallel_corpus/train.ba"),
+                      ("parallel_corpus/valid.vi", "parallel_corpus/valid.ba"),
+                      ("dictionary/dict.ba", "dictionary/dict.vi")]
+
+    # ----------------------------------------- #
+
     src_syn_path = "data/synonyms/vi_syn_data_1.json"
     dst_syn_path = None
     src_custom_ner_path = "GraphTranslation/data/custom_ner/vi_ner.json"
     dst_custom_ner_path = "GraphTranslation/data/custom_ner/ba_ner.json"
-    src_monolingual_paths = ["data/parallel_corpus/train.vi", "data/parallel_corpus/valid.vi"]
-    dst_monolingual_paths = ["data/parallel_corpus/train.ba", "data/parallel_corpus/valid.ba"]
-    parallel_paths = [("data/parallel_corpus/train.vi", "data/parallel_corpus/train.ba"),
-                      ("data/parallel_corpus/valid.vi", "data/parallel_corpus/valid.ba"),
-                      ("data/dictionary/dict.ba", "data/dictionary/dict.vi")]
     graph_cache_path = "data/cache/graph.json"
     graph_cache_path_1 = "data/cache/graph_1.json"
     activate_path = "data/cache/activation.txt"
@@ -36,17 +50,19 @@ class Config(metaclass=Singleton):
     max_gram = 4
     bow_window_size = 2
 
-    @property
+    #@property
     def src_custom_ner(self):
         if self._src_custom_ner is None and os.path.exists(self.src_custom_ner_path):
-            custom_ner = json.load(open(self.src_custom_ner_path, "r", encoding="utf8"))
+            custom_ner = json.load(
+                open(self.src_custom_ner_path, "r", encoding="utf8"))
             self._src_custom_ner = custom_ner
         return self._src_custom_ner
 
-    @property
+    #@property
     def dst_custom_ner(self):
         if self._dst_custom_ner is None and os.path.exists(self.dst_custom_ner_path):
-            custom_ner = json.load(open(self.dst_custom_ner_path, "r", encoding="utf8"))
+            custom_ner = json.load(
+                open(self.dst_custom_ner_path, "r", encoding="utf8"))
             self._dst_custom_ner = custom_ner
         return self._dst_custom_ner
 
@@ -72,26 +88,38 @@ class Config(metaclass=Singleton):
     def upper_start_chars(text):
         return " ".join([item.capitalize() for item in text.split()])
 
-    def load_src_dst_dict(self):
+    def load_src_dst_dict(self, area):
+        full_path_dst = self.dst_words_paths
+        full_path_src = self.src_words_paths
+        if area == self.BinhDinh:
+            full_path_dst = self.BinhDinh + "/" + full_path_dst
+            full_path_src = self.BinhDinh + "/" + full_path_src
+        elif area == self.GiaLai:
+            full_path_dst = self.GiaLai + "/" + full_path_dst
+            full_path_src = self.GiaLai + "/" + full_path_src
+        else:
+            full_path_dst = self.KonTum + "/" + full_path_dst
+            full_path_src = self.KonTum + "/" + full_path_src
         if self._dst_words is None or self._src_words is None or self._src_dst_mapping is None:
             all_dst_words = []
             all_src_words = []
-            for dst_words_path, src_words_path in zip(self.dst_words_paths, self.src_words_paths):
-                dst_words = [item.replace("\n", "").strip() \
-                             for item in open(dst_words_path, "r", encoding="utf8").readlines()]
-                dst_words = [item for item in dst_words if len(item) > 0]
-                dst_words += [self.upper_start_chars(w) for w in dst_words]
-                dst_words += [w.lower() for w in dst_words]
-                src_words = [item.replace("\n", "").strip() \
-                             for item in open(src_words_path, "r", encoding="utf8").readlines()]
-                src_words = [item for item in src_words if len(item) > 0]
-                src_words += [self.upper_start_chars(w) for w in src_words]
-                src_words += [w.lower() for w in src_words]
-                if len(dst_words) != len(src_words):
-                    raise ValueError("Ba dict must be equal size to Vi dict")
-                all_dst_words += dst_words
-                all_src_words += src_words
-
+            dst_words_path = full_path_dst
+            src_words_path = full_path_src
+            # for dst_words_path, src_words_path in zip(full_path_dst, full_path_src):
+            dst_words = [item.replace("\n", "").strip()
+                         for item in open(dst_words_path, "r", encoding="utf8").readlines()]
+            dst_words = [item for item in dst_words if len(item) > 0]
+            dst_words += [self.upper_start_chars(w) for w in dst_words]
+            dst_words += [w.lower() for w in dst_words]
+            src_words = [item.replace("\n", "").strip()
+                         for item in open(src_words_path, "r", encoding="utf8").readlines()]
+            src_words = [item for item in src_words if len(item) > 0]
+            src_words += [self.upper_start_chars(w) for w in src_words]
+            src_words += [w.lower() for w in src_words]
+            if len(dst_words) != len(src_words):
+                raise ValueError("Ba dict must be equal size to Vi dict")
+            all_dst_words += dst_words
+            all_src_words += src_words
             self._dst_words = all_dst_words
             self._src_words = all_src_words
             dictionary = set()
@@ -100,30 +128,31 @@ class Config(metaclass=Singleton):
             self._src_dst_mapping = dictionary
             self.load_syn_word_set()
 
-    @property
-    def dst_words(self):
-        self.load_src_dst_dict()
+    #@property
+    def dst_words(self, area):
+        self.load_src_dst_dict(area)
         dst_dict = self.dst_syn_words
-        dst_words = list(dst_dict.keys()) + [w for w_list in dst_dict.values() for w in w_list]
+        dst_words = list(dst_dict.keys()) + \
+            [w for w_list in dst_dict.values() for w in w_list]
         return self._dst_words + dst_words
 
-    @property
-    def src_words(self):
-        self.load_src_dst_dict()
+    #@property
+    def src_words(self, area):
+        self.load_src_dst_dict(area)
         # syn_dict = self.src_syn_words
         # syn_words = list(syn_dict.keys()) + [w for w_list in syn_dict.values() for w in w_list]
         # return self._src_words + syn_words
         return self._src_words
 
-    @property
-    def dst_word_set(self):
-        return set(self.dst_words)
+    #@property
+    def dst_word_set(self, area):
+        return set(self.dst_words(area))
 
-    @property
-    def src_word_set(self):
-        return set(self.src_words)
+    #@property
+    def src_word_set(self, area):
+        return set(self.src_words(area))
 
-    @property
-    def src_dst_mapping(self):
-        self.load_src_dst_dict()
+    #@property
+    def src_dst_mapping(self, area):
+        self.load_src_dst_dict(area)
         return self._src_dst_mapping

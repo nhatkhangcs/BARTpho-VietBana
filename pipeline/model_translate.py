@@ -8,8 +8,8 @@ from model.custom_mbart_model import CustomMbartModel
 
 
 class ModelTranslator(BaseServiceSingleton):
-    def __init__(self, checkpoint_path: str = "pretrained/best_aligned"):
-        super(ModelTranslator, self).__init__()
+    def __init__(self, area, checkpoint_path: str = "pretrained/best_aligned"):
+        super(ModelTranslator, self).__init__(area)
         if torch.cuda.is_available():
             self.device = "cuda:0"
         else:

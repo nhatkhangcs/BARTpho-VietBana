@@ -11,21 +11,22 @@ from GraphTranslation.common.data_types import RelationTypes
 from objects.graph import Graph, Word, Sentence, SentWord, Path, TranslationGraph, Relation
 from GraphTranslation.services.base_service import BaseServiceSingleton
 from GraphTranslation.services.nlpcore_service import TranslationNLPCoreService
-#from GraphTranslation.utils.utils import word_distance
-#common_keys.py
-#from GraphTranslation.common.common_keys import TYPE, CO_OCCURRENCE_INDEX, WORDS, RELATIONS, DST_N_GRAM_DATA
+# from GraphTranslation.utils.utils import word_distance
+# common_keys.py
+# from GraphTranslation.common.common_keys import TYPE, CO_OCCURRENCE_INDEX, WORDS, RELATIONS, DST_N_GRAM_DATA
 
-#pickle.py
-#import pickle, codecs
+# pickle.py
+# import pickle, codecs
 
 
 class GraphService(BaseServiceSingleton):
-    def __init__(self):
-        super(GraphService, self).__init__()
+    def __init__(self, area):
+        super(GraphService, self).__init__(area)
         self.graph = Graph()
-        self.nlp_core_service = TranslationNLPCoreService(is_train=True)
+        self.nlp_core_service = TranslationNLPCoreService(area, is_train=True)
         self.src_re = None
         self.load_graph()
+        self.area = area
 
     def eval(self):
         self.nlp_core_service.eval()
@@ -42,7 +43,14 @@ class GraphService(BaseServiceSingleton):
                 dst_word, src_word, RelationTypes.TRANSLATE)
 
     def load_from_dictionary(self):
-        for src, dst in self.config.src_dst_mapping:
+        full_path = self.config.src_dst_mapping(self.area)
+        if self.area == "BinhDinh":
+            full_path = self.config.BinhDinh + "/" + full_path
+        elif self.area == "GiaLai":
+            full_path = self.config.GiaLai + "/" + full_path
+        else:
+            full_path = self.config.KonTum + "/" + full_path
+        for src, dst in full_path:
             src_word = Word(src, language=Languages.SRC)
             dst_word = Word(dst, language=Languages.DST)
             src_word = self.graph.add_word(src_word)
@@ -75,53 +83,58 @@ class GraphService(BaseServiceSingleton):
 
     def load_from_monolingual_corpus(self):
         def load_from_lang_corpus(language):
-            if language == Languages.SRC:
-                file_paths = self.config.src_monolingual_paths
+            if self.area == "BinhDinh":
+                appending = self.config.BinhDinh + '/'
+            elif self.area == "GiaLai":
+                appending = self.config.GiaLai + '/'
             else:
-                file_paths = self.config.dst_monolingual_paths
-            for file_path in file_paths:
+                appending = self.config.KonTum + '/'
+            if language == Languages.SRC:
+                file_path = appending + self.config.src_monolingual_paths
+            else:
+                file_path = appending + self.config.dst_monolingual_paths
                 # count = 0
-                with open(file_path, "r", encoding="utf8") as file:
-                    for n_line, line in tqdm(enumerate(file), desc=f"LOAD FROM MONOLINGUAL CORPUS - {file_path}"):
-                        sentence = self.nlp_core_service.annotate(
-                            text=line, language=language)
-                        for i in range(len(sentence)):
-                            src_sent_word = sentence[i]
-                            for src_child in src_sent_word.all_children:
-                                for dst_child in src_sent_word.all_children:
-                                    if dst_child == src_child:
-                                        continue
-                                    if src_child.end_index < dst_child.begin_index:
-                                        src_word = self.graph.add_word(
-                                            src_child.to_word())
+            with open(file_path, "r", encoding="utf8") as file:
+                for _, line in tqdm(enumerate(file), desc=f"LOAD FROM MONOLINGUAL CORPUS - {file_path}"):
+                    sentence = self.nlp_core_service.annotate(
+                        text=line, language=language)
+                    for i in range(len(sentence)):
+                        src_sent_word = sentence[i]
+                        for src_child in src_sent_word.all_children:
+                            for dst_child in src_sent_word.all_children:
+                                if dst_child == src_child:
+                                    continue
+                                if src_child.end_index < dst_child.begin_index:
+                                    src_word = self.graph.add_word(
+                                        src_child.to_word())
+                                    dst_word = self.graph.add_word(
+                                        dst_child.to_word())
+                                    # distance = dst_child.sent_distance(src_child)
+                                    distance = dst_child.begin_index - src_child.end_index
+                                    relation = self.graph.add_relation_with_type(src_word, dst_word,
+                                                                                 RelationTypes.NEXT)
+                                    if dst_child.is_upper and not src_child.is_upper:
                                         dst_word = self.graph.add_word(
-                                            dst_child.to_word())
-                                        # distance = dst_child.sent_distance(src_child)
-                                        distance = dst_child.begin_index - src_child.end_index
+                                            dst_child.to_ent_word())
                                         relation = self.graph.add_relation_with_type(src_word, dst_word,
                                                                                      RelationTypes.NEXT)
-                                        if dst_child.is_upper and not src_child.is_upper:
-                                            dst_word = self.graph.add_word(
-                                                dst_child.to_ent_word())
-                                            relation = self.graph.add_relation_with_type(src_word, dst_word,
-                                                                                         RelationTypes.NEXT)
-                                        elif not dst_child.is_upper and src_child.is_upper:
-                                            src_word = self.graph.add_word(
-                                                src_child.to_ent_word())
-                                            relation = self.graph.add_relation_with_type(src_word, dst_word,
-                                                                                         RelationTypes.NEXT)
-                                        elif dst_child.is_upper and src_child.is_upper:
-                                            src_word = self.graph.add_word(
-                                                src_child.to_ent_word())
-                                            dst_word = self.graph.add_word(
-                                                dst_child.to_ent_word())
-                                            relation = self.graph.add_relation_with_type(src_word, dst_word,
-                                                                                         RelationTypes.NEXT)
+                                    elif not dst_child.is_upper and src_child.is_upper:
+                                        src_word = self.graph.add_word(
+                                            src_child.to_ent_word())
+                                        relation = self.graph.add_relation_with_type(src_word, dst_word,
+                                                                                     RelationTypes.NEXT)
+                                    elif dst_child.is_upper and src_child.is_upper:
+                                        src_word = self.graph.add_word(
+                                            src_child.to_ent_word())
+                                        dst_word = self.graph.add_word(
+                                            dst_child.to_ent_word())
+                                        relation = self.graph.add_relation_with_type(src_word, dst_word,
+                                                                                     RelationTypes.NEXT)
 
-                                        relation.add_distance(distance)
-                                        self.graph.update_relation_count(
-                                            relation)
-                                        # count += 1
+                                    relation.add_distance(distance)
+                                    self.graph.update_relation_count(
+                                        relation)
+                                    # count += 1
                             if i == len(sentence) - 1:
                                 break
                             for src_child in src_sent_word.all_children:
@@ -156,18 +169,18 @@ class GraphService(BaseServiceSingleton):
         # sys.exit()
 
     def extract_chunks(self, src_text: str, dst_text: str):
-        def split_sent(sent, anchors):
-            new_chunks = []
-            start = 0
-            while len(anchors) > 0:
-                if start < anchors[0].begin_index - 1:
-                    chunk = sent.get_chunk(
-                        start + 1, anchors[0].begin_index - 1)
-                    new_chunks.append(chunk)
-                start = anchors[0].end_index
-                anchors = anchors[1:]
-            new_chunks.append(sent.get_chunk(start + 1, len(sent)))
-            return new_chunks
+        # def split_sent(sent, anchors):
+        #     new_chunks = []
+        #     start = 0
+        #     while len(anchors) > 0:
+        #         if start < anchors[0].begin_index - 1:
+        #             chunk = sent.get_chunk(
+        #                 start + 1, anchors[0].begin_index - 1)
+        #             new_chunks.append(chunk)
+        #         start = anchors[0].end_index
+        #         anchors = anchors[1:]
+        #     new_chunks.append(sent.get_chunk(start + 1, len(sent)))
+        #     return new_chunks
 
         src_sentence = self.nlp_core_service.annotate(
             text=src_text, language=Languages.SRC)
@@ -183,16 +196,17 @@ class GraphService(BaseServiceSingleton):
          for r in translation_graph.mapping_relations]
         [self.graph.update_relation_count(r) for r in extra_relations]
         mapped_chunks = translation_graph.mapped_chunks
-        if len(mapped_chunks) > 0:
-            src_chunks, dst_chunks = list(map(list, zip(*mapped_chunks)))
-        else:
-            src_chunks, dst_chunks = [], []
+        #if len(mapped_chunks) > 0:
+            #src_chunks, dst_chunks = list(map(list, zip(*mapped_chunks)))
+        #else:
+            #src_chunks, dst_chunks = [], []
         # src_chunks = split_sent(translation_graph.src_sent, src_chunks)
         # dst_chunks = split_sent(translation_graph.dst_sent, dst_chunks)
         # not_mapped_chunks = src_chunks, dst_chunks
         # return mapped_chunks, not_mapped_chunks
         return mapped_chunks, []
 
+    # not used, no need to modify
     def load_from_parallel_corpus(self):
         self.logger.debug("GET TRANSLATION SCORE")
         # print("GET TRANSLATION SCORE")
@@ -240,7 +254,7 @@ class GraphService(BaseServiceSingleton):
             self.load_punctuation()
             self.load_from_dictionary()
             # self.load_from_parallel_corpus()
-            self.load_from_monolingual_corpus()
+            self.load_from_monolingual_corpus(self.area)
             self.load_synonym_dictionary()
             folder, _ = os.path.split(self.config.graph_cache_path)
             os.makedirs(folder, exist_ok=True)
@@ -257,7 +271,7 @@ class GraphService(BaseServiceSingleton):
     '''
     Khang
     '''
-    # def load_graph_with_path(self): 
+    # def load_graph_with_path(self):
     #     if not os.path.exists(self.config.activate_path):
     #         self.load_punctuation()
     #         self.load_from_dictionary()
@@ -274,11 +288,11 @@ class GraphService(BaseServiceSingleton):
     #     relation_jsons = graph_dict[RELATIONS]
     #     co_occurrence_index = pickle.loads(codecs.decode(graph_dict[CO_OCCURRENCE_INDEX].encode(), "base64"))
     #     self.graph.words = {key: Word.from_json(item) for key, item in word_jsons.items()}
-    #     self.graph.relations = {key: Relation.get_class(item[TYPE]).from_json(item, self.graph.get_node_by_id) 
+    #     self.graph.relations = {key: Relation.get_class(item[TYPE]).from_json(item, self.graph.get_node_by_id)
     #                             for key, item in relation_jsons.items()}
     #     self.graph.co_occurrence_index = co_occurrence_index
     #     self.graph.dst_n_gram_data = graph_dict[DST_N_GRAM_DATA]
-        # self.build_translation_re()
+    # self.build_translation_re()
 
     def get_words(self, text, language=Languages.SRC):
         mapped_words = []
@@ -315,9 +329,9 @@ class GraphService(BaseServiceSingleton):
             word.info_nodes = info_nodes
         return words
 
-    @staticmethod
-    def check_valid_anchor(word):
-        return True
+    # @staticmethod
+    # def check_valid_anchor(word):
+    #     return True
 
     def find_anchor_parallel(self, translation_graph: TranslationGraph):
         src_sent = translation_graph.src_sent
@@ -470,5 +484,5 @@ class GraphService(BaseServiceSingleton):
 
 
 if __name__ == "__main__":
-    graph_service = GraphService()
+    graph_service = GraphService("BinhDinh")
     print(graph_service.graph.next_graph)

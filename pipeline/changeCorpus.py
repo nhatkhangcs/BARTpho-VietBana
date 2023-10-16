@@ -16,6 +16,6 @@ class ChangeCorpus:
         return res
 
 if __name__ == "__main__":
-    changeCorpus = ChangeCorpus()
+    changeCorpus = ChangeCorpus("BinhDinh")
     changeCorpus("GiaLai")
 

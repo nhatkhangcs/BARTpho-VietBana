@@ -14,11 +14,12 @@ from GraphTranslation.utils.utils import check_number
 # import conjunction
 
 class NLPCoreService(BaseServiceSingleton):
-    def __init__(self):
-        super(NLPCoreService, self).__init__()
+    def __init__(self,area):
+        super(NLPCoreService, self).__init__(area)
         self.word_set = set() # ===> Load được trong config.py
         self.max_gram = self.config.max_gram
         self.custom_ner = {}
+        self.area = area
 
     @staticmethod
     def check_number(text):
@@ -26,7 +27,8 @@ class NLPCoreService(BaseServiceSingleton):
 
     def add_custom_ner(self, sentence: Sentence) -> Sentence:
         for w in sentence.words:
-            if w.original_text in self.custom_ner:
+            #print(list(self.custom_ner.keys()))
+            if w.original_text in list(self.custom_ner.keys()):
                 w.ner_label = self.custom_ner[w.text]
             elif self.check_number(w.original_text):
                 w.ner_label = NUM
@@ -54,17 +56,18 @@ class NLPCoreService(BaseServiceSingleton):
 
 
 class SrcNLPCoreService(NLPCoreService):
-    def __init__(self):
-        super(SrcNLPCoreService, self).__init__()
+    def __init__(self, area):
+        super(SrcNLPCoreService, self).__init__(area)
+        self.area = area
         self.nlpcore_connector = VnCoreNLP(address=self.config.vncorenlp_host, port=self.config.vncorenlp_port,
                                            annotators="wseg,ner")
-        self.word_set = self.config.src_word_set
+        self.word_set = self.config.src_word_set(area)
 
         self.viet2bana_dict = {}
-        for viet_word, bahnaric_word in self.config.src_dst_mapping: # with format set: (viet_word, bahnaric_word)
+        for viet_word, bahnaric_word in self.config.src_dst_mapping(area): # with format set: (viet_word, bahnaric_word)
             self.viet2bana_dict[viet_word] = bahnaric_word # Can help problem when 1 bahnaric word with multiple vietnamese words
         
-        self.custom_ner = self.config.src_custom_ner
+        self.custom_ner = self.config.src_custom_ner()
 
     def word_n_grams(self, words, n):
         if len(words) == 0:
@@ -220,11 +223,12 @@ class SrcNLPCoreService(NLPCoreService):
 
 
 class DstNLPCoreService(NLPCoreService):
-    def __init__(self):
-        super(DstNLPCoreService, self).__init__()
-        self.word_set = self.config.dst_word_set
+    def __init__(self, area):
+        super(DstNLPCoreService, self).__init__(area)
+        self.word_set = self.config.dst_word_set(area)
         self.custom_ner = self.config.dst_custom_ner
         self.language = Languages.DST
+        self.area = area
 
     def check_number(self, text):
         syllables = word_tokenize(text)
@@ -316,20 +320,21 @@ class DstNLPCoreService(NLPCoreService):
 
 
 class DictBasedSrcNLPCoreService(DstNLPCoreService):
-    def __init__(self):
-        super(DictBasedSrcNLPCoreService, self).__init__()
-        self.word_set = self.config.src_word_set
-        self.custom_ner = self.config.src_custom_ner
+    def __init__(self, area):
+        super(DictBasedSrcNLPCoreService, self).__init__(area)
+        self.word_set = self.config.src_word_set(area)
+        self.custom_ner = self.config.src_custom_ner()
         self.language = Languages.SRC
 
 
 class SyllableBasedDstNLPCoreService(DstNLPCoreService):
-    def __init__(self):
-        super(SyllableBasedDstNLPCoreService, self).__init__()
-        self.word_set = self.config.dst_word_set
+    def __init__(self, area):
+        super(SyllableBasedDstNLPCoreService, self).__init__(area)
+        self.word_set = self.config.dst_word_set(area)
         self.custom_ner = self.config.dst_custom_ner
         self.language = Languages.DST
         self.punctuation_set = set(string.punctuation) - set("'")
+        self.area = area
 
     def map_dictionary(self, text):
         text = text.lower()
@@ -413,11 +418,12 @@ class SyllableBasedDstNLPCoreService(DstNLPCoreService):
 
 
 class SyllableBasedSrcNLPCoreService(SyllableBasedDstNLPCoreService):
-    def __init__(self):
-        super(SyllableBasedSrcNLPCoreService, self).__init__()
-        self.word_set = self.config.src_word_set
-        self.custom_ner = self.config.src_custom_ner
+    def __init__(self, area):
+        super(SyllableBasedSrcNLPCoreService, self).__init__(area)
+        self.word_set = self.config.src_word_set(area)
+        self.custom_ner = self.config.src_custom_ner()
         self.language = Languages.SRC
+        self.area = area
 
 
 class CombinedSrcNLPCoreService(SyllableBasedSrcNLPCoreService):
@@ -459,14 +465,15 @@ class CombinedSrcNLPCoreService(SyllableBasedSrcNLPCoreService):
 
 
 class TranslationNLPCoreService(BaseServiceSingleton):
-    def __init__(self, is_train=False):
-        super(TranslationNLPCoreService, self).__init__()
-        self.src_service = SyllableBasedSrcNLPCoreService() if is_train else SrcNLPCoreService()
-        self.dst_service = SyllableBasedDstNLPCoreService()
-        self.src_dict_based_service = SyllableBasedSrcNLPCoreService()
+    def __init__(self, area, is_train=False):
+        super(TranslationNLPCoreService, self).__init__(area)
+        self.src_service = SyllableBasedSrcNLPCoreService(area) if is_train else SrcNLPCoreService(area)
+        self.dst_service = SyllableBasedDstNLPCoreService(area)
+        self.src_dict_based_service = SyllableBasedSrcNLPCoreService(area)
+        self.area = area
 
     def eval(self):
-        self.src_service = SrcNLPCoreService()
+        self.src_service = SrcNLPCoreService(self.area)
 
     def word_segmentation(self, text, language: Languages = Languages.SRC):
         if language == Languages.SRC:
@@ -482,7 +489,7 @@ class TranslationNLPCoreService(BaseServiceSingleton):
 
 
 if __name__ == "__main__":
-    nlpcore_service = TranslationNLPCoreService()
+    nlpcore_service = TranslationNLPCoreService("BinhDinh")
     dst_sentence_ = nlpcore_service.annotate("minh jĭt pơđăm", Languages.DST)
     src_sentence_ = nlpcore_service.word_segmentation("kể từ khi có trạm xá, nơi nhộn nhịp là thành phố Hồ Chí Minh", Languages.SRC)
     # print(dst_sentence_.info)

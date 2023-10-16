@@ -38,7 +38,7 @@ class Update(BaseServiceSingleton):
             return False
         # call add_word_to_dict function
 
-        gs = GraphService()
+        gs = GraphService("BinhDinh")
         # create graph.json
         print("creating graph")
         # create port 8001 for the graph service

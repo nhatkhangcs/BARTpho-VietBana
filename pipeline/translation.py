@@ -13,11 +13,12 @@ from pipeline.model_translate import ModelTranslator
 from GraphTranslation.common.ner_labels import *
 
 class Translator(BaseServiceSingleton):
-    def __init__(self):
-        super(Translator, self).__init__()
-        self.model_translator = ModelTranslator()
-        self.graph_translator = TranslationPipeline()
+    def __init__(self, area):
+        super(Translator, self).__init__(area)
+        self.model_translator = ModelTranslator(area)
+        self.graph_translator = TranslationPipeline(area)
         self.graph_translator.eval()
+        self.area = area
 
     @staticmethod
     def post_process(text):
@@ -90,7 +91,7 @@ class Translator(BaseServiceSingleton):
                             print(f"CHUNK TRANSLATE {chunk.text} -> {translated_chunk} : {time.time() - s}")
                 i += 1
 
-            print(result)
+            print("Result before scoring", result)
             ## Phần dưới này không có tác dụng
             if len(result) >= 3:
                 for i in range(len(result)):
@@ -139,6 +140,7 @@ class Translator(BaseServiceSingleton):
                             result[i] = ' '
                     if i > 0 and result[i-1].endswith("/@") or result[i-1].endswith("//@"):
                         result[i] = result[i].capitalize()
+            print("Result after scoring", result)
             output = result
 
             output = "  ".join(output).replace("//@", "\n").replace("/@", ".").replace("@", "")
@@ -151,5 +153,5 @@ class Translator(BaseServiceSingleton):
 
 
 if __name__ == "__main__":
-    translator = Translator()
-    print(translator("có thể nào, quay lại!"))
+    translator = Translator("")
+    print(translator("coi chừng đi vào chỗ chết đó!"))

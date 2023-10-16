@@ -70,7 +70,7 @@ class Adder(BaseServiceSingleton):
         if os.path.exists(activation_path):
             print("removing activation file...")
             os.remove(activation_path)
-        gs = GraphService()
+        gs = GraphService("BinhDinh")
         gs.load_graph()
 
         transPipeline = TranslationPipeline()

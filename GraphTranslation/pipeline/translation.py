@@ -7,10 +7,11 @@ from GraphTranslation.services.nlpcore_service import TranslationNLPCoreService
 
 
 class TranslationPipeline(BaseServiceSingleton):   
-    def __init__(self):
-        super(TranslationPipeline, self).__init__()
-        self.graph_service = GraphService()
-        self.nlp_core_service = TranslationNLPCoreService()
+    def __init__(self, area):
+        super(TranslationPipeline, self).__init__(area)
+        self.graph_service = GraphService(area)
+        self.nlp_core_service = TranslationNLPCoreService(area)
+        self.area = area
 
     def add_check_valid_anchor_func(self, func):
         self.graph_service.check_valid_anchor = func

@@ -10,9 +10,10 @@ from GraphTranslation.utils.utils import generate_id
 
 
 class BaseService:
-    def __init__(self):
+    def __init__(self, area):
         self.logger = logging.getLogger(self.__class__.__name__)
         self.config = Config()
+        self.area = area
 
     def make_request(self, request_func, key=None, **kwargs):
         result = None
