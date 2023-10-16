@@ -8,7 +8,7 @@ from vncorenlp import VnCoreNLP
 from GraphTranslation.common.languages import Languages
 from GraphTranslation.common.ner_labels import *
 from objects.graph import SentWord, Sentence, SyllableBasedSentence, SentCombineWord
-from GraphTranslation.services.base_service import BaseServiceSingletonWithCache, BaseServiceSingleton
+from GraphTranslation.services.base_service import BaseServiceSingleton
 from GraphTranslation.utils.utils import check_number
 
 # import conjunction
@@ -27,8 +27,8 @@ class NLPCoreService(BaseServiceSingleton):
 
     def add_custom_ner(self, sentence: Sentence) -> Sentence:
         for w in sentence.words:
-            #print(list(self.custom_ner.keys()))
-            if w.original_text in list(self.custom_ner.keys()):
+            self.custom_ner = self.custom_ner
+            if w.original_text in self.custom_ner.values():
                 w.ner_label = self.custom_ner[w.text]
             elif self.check_number(w.original_text):
                 w.ner_label = NUM
@@ -226,7 +226,7 @@ class DstNLPCoreService(NLPCoreService):
     def __init__(self, area):
         super(DstNLPCoreService, self).__init__(area)
         self.word_set = self.config.dst_word_set(area)
-        self.custom_ner = self.config.dst_custom_ner
+        self.custom_ner = self.config.dst_custom_ner()
         self.language = Languages.DST
         self.area = area
 
@@ -331,7 +331,7 @@ class SyllableBasedDstNLPCoreService(DstNLPCoreService):
     def __init__(self, area):
         super(SyllableBasedDstNLPCoreService, self).__init__(area)
         self.word_set = self.config.dst_word_set(area)
-        self.custom_ner = self.config.dst_custom_ner
+        self.custom_ner = self.config.dst_custom_ner()
         self.language = Languages.DST
         self.punctuation_set = set(string.punctuation) - set("'")
         self.area = area

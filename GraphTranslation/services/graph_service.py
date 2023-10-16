@@ -44,12 +44,24 @@ class GraphService(BaseServiceSingleton):
 
     def load_from_dictionary(self):
         full_path = self.config.src_dst_mapping(self.area)
-        if self.area == "BinhDinh":
-            full_path = self.config.BinhDinh + "/" + full_path
-        elif self.area == "GiaLai":
-            full_path = self.config.GiaLai + "/" + full_path
-        else:
-            full_path = self.config.KonTum + "/" + full_path
+        # if self.area == "BinhDinh":
+        #     for src, dst in full_path:
+        #     full_path = self.config.BinhDinh + "/" + full_path
+        # elif self.area == "GiaLai":
+        #     full_path = self.config.GiaLai + "/" + full_path
+        # else:
+        #     full_path = self.config.KonTum + "/" + full_path
+        # for each src, dst in full path: self.config.area + "/" + self.config.src_dst_mapping
+        for src, dst in full_path:
+            if self.area == "BinhDinh":
+                src = self.config.BinhDinh + '/' + src
+                dst = self.config.BinhDinh + '/' + dst
+            elif self.area == "GiaLai":
+                src = self.config.GiaLai + '/' + src
+                dst = self.config.GiaLai + '/' + dst
+            else:
+                src = self.config.KonTum + '/' + src
+                dst = self.config.KonTum + '/' + dst
         for src, dst in full_path:
             src_word = Word(src, language=Languages.SRC)
             dst_word = Word(dst, language=Languages.DST)
@@ -90,9 +102,11 @@ class GraphService(BaseServiceSingleton):
             else:
                 appending = self.config.KonTum + '/'
             if language == Languages.SRC:
-                file_path = appending + self.config.src_monolingual_paths
+                for path in self.config.src_monolingual_paths:
+                    file_path = appending + path
             else:
-                file_path = appending + self.config.dst_monolingual_paths
+                for path in self.config.dst_monolingual_paths:
+                    file_path = appending + path
                 # count = 0
             with open(file_path, "r", encoding="utf8") as file:
                 for _, line in tqdm(enumerate(file), desc=f"LOAD FROM MONOLINGUAL CORPUS - {file_path}"):
@@ -254,7 +268,7 @@ class GraphService(BaseServiceSingleton):
             self.load_punctuation()
             self.load_from_dictionary()
             # self.load_from_parallel_corpus()
-            self.load_from_monolingual_corpus(self.area)
+            self.load_from_monolingual_corpus()
             self.load_synonym_dictionary()
             folder, _ = os.path.split(self.config.graph_cache_path)
             os.makedirs(folder, exist_ok=True)

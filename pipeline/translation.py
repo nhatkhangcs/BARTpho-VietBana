@@ -153,5 +153,5 @@ class Translator(BaseServiceSingleton):
 
 
 if __name__ == "__main__":
-    translator = Translator("")
+    translator = Translator("GiaLai")
     print(translator("coi chừng đi vào chỗ chết đó!"))
