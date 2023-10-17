@@ -99,15 +99,9 @@
  ┃ ┃ ┗ 📜valid.vi
  ┣ 📂KonTum
  ┃ ┣ 📂dictionary
- ┃ ┃ ┣ 📜bana_0504_w.txt
- ┃ ┃ ┣ 📜bana_kriem.txt
  ┃ ┃ ┣ 📜dict.ba
  ┃ ┃ ┣ 📜dict.vi
- ┃ ┃ ┣ 📜norm_kriem.ba
- ┃ ┃ ┣ 📜norm_kriem.vi
- ┃ ┃ ┣ 📜vi-ba_word_dict_norm.json
- ┃ ┃ ┣ 📜vi_0504_w.txt
- ┃ ┃ ┗ 📜vi_kriem.txt
+ ┃ ┃ ┗ 📜vi-ba_word_dict_norm.json
  ┃ ┗ 📂parallel_corpus
  ┃ ┃ ┣ 📜test.ba
  ┃ ┃ ┣ 📜test.vi
