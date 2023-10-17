@@ -23,12 +23,12 @@ class Translator(BaseServiceSingleton):
     @staticmethod
     def post_process(text):
         words = text.split()
-        output = []
-        for w in words:
-            if len(output) == 0 or output[-1] != w:
-                output.append(w)
+        # output = []
+        # for w in words:
+        #     if len(output) == 0 or output[-1] != w:
+        #         output.append(w)
                 
-        output = " ".join(output)
+        output = " ".join(words)
         special_chars = [',', '.', ':', '?', '!']
         for char in special_chars:
             if char in output:
@@ -49,7 +49,7 @@ class Translator(BaseServiceSingleton):
             #print(sentence.mapped_words)
             translation_graph = TranslationGraph(src_sent=sentence)
             translation_graph.update_src_sentence()         # Vị trí cần thực hiện việc translate các token trong dictionary
-            #print(sentence.mapped_words)
+            print(sentence.mapped_words)
             if model == "BART_CHUNK":
                 mapped_words = [w for w in translation_graph.src_sent if len(w.translations) > 0 or w.is_ner
                                 or w.is_end_sent or w.is_end_paragraph or w.is_punctuation or w.is_conjunction or w.is_in_dictionary]
@@ -141,7 +141,7 @@ class Translator(BaseServiceSingleton):
                             result[i] = ' '
                     if i > 0 and result[i-1].endswith("/@") or result[i-1].endswith("//@"):
                         result[i] = result[i].capitalize()
-            #print("Result after scoring", result)
+            print("Result after scoring", result)
             output = result
 
             output = "  ".join(output).replace("//@", "\n").replace("/@", ".").replace("@", "")
@@ -154,5 +154,5 @@ class Translator(BaseServiceSingleton):
 
 
 if __name__ == "__main__":
-    translator = Translator("GiaLai")
-    print(translator("coi chừng, đi vào chỗ, chết đó!"))
+    translator = Translator("BinhDinh")
+    print(translator("Xong rồi thì về nhé."))
