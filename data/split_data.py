@@ -3,6 +3,7 @@ import os
 import re
 
 def clean_da_shit(string):
+    string = re.sub(r',\s*,', ',', string)
     string = re.sub(r'\s+,\s+', ',', string)
     string = re.sub(r'\s+', ' ', string)
     string = re.sub(r'\.', '', string)
