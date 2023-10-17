@@ -1365,21 +1365,13 @@ class Sentence:
         return self.words
 
     def update_mapped_words(self):
- 
         for word in self.words:
-            # if word.text doesn't contains '@'
             if '@' not in word.text:
                 for node in word.out_relations.values():
-                    #print(word.out_relations.values())
-                    # check if node.dst.text is a punctuation
-                    
-                    
-                    if node.type == 'TRANSLATE' and (word.dst_word == ''):
+                    #and (word.dst_word == '')
+                    if node.type == 'TRANSLATE' :
                         word.dst_word = node.dst.text
                         for info in self.info:
-                            #print(info)
-                            #print(info['text'])
-                            #print(word.text)
                             if info['text'] == word.text:
                                 info['mapped_word'] = node.dst.text
 
