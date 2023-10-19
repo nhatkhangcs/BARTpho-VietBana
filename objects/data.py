@@ -23,9 +23,9 @@ class AddData(BaseModel):
 class Corpus(BaseModel):
     area: str
 
-    def __init__(self, text: str):
-        super(Corpus, self).__init__(area=text)
-        self.area = text
+    def __init__(self, area: str):
+        super(Corpus, self).__init__(area=area)
+        self.area = area
 
 class OutData(BaseModel):
     src: str

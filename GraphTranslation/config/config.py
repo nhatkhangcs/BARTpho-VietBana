@@ -100,7 +100,7 @@ class Config(metaclass=Singleton):
         else:
             full_path_dst = "data/" + self.KonTum + "/" + full_path_dst
             full_path_src = "data/" + self.KonTum + "/" + full_path_src
-        print(full_path_dst, full_path_src)
+        #print(full_path_dst, full_path_src)
         if self._dst_words is None or self._src_words is None or self._src_dst_mapping is None:
             all_dst_words = []
             all_src_words = []

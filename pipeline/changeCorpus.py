@@ -30,14 +30,14 @@ class ChangeCorpus:
                 cls = None
             
             #print(dict(Singleton._instances))
-        newTrans = Translator(area=changeTo)
-        print(newTrans)
+        #newTrans = Translator(area=changeTo)
+        #print(newTrans)
         
         #print(dict(Singleton._instances))
         print(f"Changed to {changeTo}")
         self.area = changeTo
         
-        return newTrans
+        #return newTrans
 
     def __call__(self, changeTo):
         res = self.changeCorpus(changeTo=changeTo)

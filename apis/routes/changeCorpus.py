@@ -20,8 +20,8 @@ class changeCorpus(BaseRoute):
 
     def change_corpus_func(self, data: Corpus):
         
-        success = self.pipeline(data.area)
-        TranslateRoute.changePipeline(trans=success, area=data.area)
+        self.pipeline(data.area)
+        TranslateRoute.changePipeline(area=data.area)
         
     
     def create_routes(self):

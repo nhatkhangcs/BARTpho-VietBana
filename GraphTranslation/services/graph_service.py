@@ -111,7 +111,7 @@ class GraphService(BaseServiceSingleton):
                 for path in self.config.dst_monolingual_paths:
                     newpath.append(appending + path)
                 # count = 0
-            print(newpath)
+            #print(newpath)
             for file_path in newpath:
                 with open(file_path, "r", encoding="utf8") as file:
                     for _, line in tqdm(enumerate(file), desc=f"LOAD FROM MONOLINGUAL CORPUS - {file_path}"):

@@ -5,35 +5,33 @@ from pipeline.translation import Translator
 
 
 class TranslateRoute(BaseRoute):
+    area: str
+    pipeline: Translator
+
     def __init__(self, area):
         super(TranslateRoute, self).__init__(prefix="/translate")
-        self.pipeline = Translator(area=area)
-        self.area = area
+        TranslateRoute.pipeline = Translator(area=area)
+        TranslateRoute.area = area
 
-    def translate_func(self, data: Data):
-        print("current area:", self.area)
-        print("addresss of pipeline:", self.pipeline)
-        out_str = self.pipeline(data.text, model=data.model)
+    def translate_func(data: Data):
+        #print("current area:", TranslateRoute.area)
+        #print("addresss of pipeline:", TranslateRoute.pipeline)
+        out_str = TranslateRoute.pipeline(data.text, model=data.model)
         #print("Translating data")
         return OutData(src=data.text, tgt=out_str)
     
-    @classmethod
-    def changePipeline(self, trans: Translator, area: str):
+    @staticmethod
+    def changePipeline(area: str):
         #print(self.pipeline)
         #del self.pipeline
-        self.pipeline = None
-        self.pipeline = trans
-        self.area = area
-        #print(self.pipeline)
-        #print(trans("đồng tiền là vô giá"))
-
-    def getPipeline(self):
-        return self.pipeline
+        print("Changing to:", area)
+        TranslateRoute.area = area
+        TranslateRoute.pipeline = Translator(area)
 
     def create_routes(self):
         router = self.router
 
         @router.post("/vi_ba")
         async def translate(data: Data):
-            return await self.wait(self.translate_func, data)
+            return await self.wait(TranslateRoute.translate_func, data)
 
