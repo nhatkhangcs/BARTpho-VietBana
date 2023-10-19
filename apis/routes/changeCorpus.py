@@ -19,7 +19,6 @@ class changeCorpus(BaseRoute):
         self.area = area
 
     def change_corpus_func(self, data: Corpus):
-        
         self.pipeline(data.area)
         TranslateRoute.changePipeline(area=data.area)
         

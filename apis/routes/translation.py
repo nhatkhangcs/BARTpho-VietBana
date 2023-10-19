@@ -28,6 +28,12 @@ class TranslateRoute(BaseRoute):
         TranslateRoute.area = area
         TranslateRoute.pipeline = Translator(area)
 
+    @staticmethod
+    def changePipeline(area: str):
+        #print(self.pipeline)
+        #del self.pipeline
+        TranslateRoute.pipeline = Translator(area)
+
     def create_routes(self):
         router = self.router
 

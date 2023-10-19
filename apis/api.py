@@ -5,8 +5,8 @@ from fastapi import FastAPI
 # from apis.routes.graph_translate import GraphTranslateRoute
 from apis.routes.translation import TranslateRoute
 #from apis.routes.texttospeech import SpeakRoute
-#from apis.routes.addword import addWord
-#from apis.routes.update import updateWord
+from apis.routes.addword import addWord
+from apis.routes.update import updateWord
 from apis.routes.changeCorpus import changeCorpus
 # from fastapi.middleware.cors import CORSMiddleware
 
@@ -31,6 +31,6 @@ app.add_middleware(
 # app.include_router(GraphTranslateRoute().router)
 app.include_router(TranslateRoute("GiaLai").router)
 #app.include_router(SpeakRoute().router)
-#app.include_router(addWord("BinhDinh").router)
-#app.include_router(updateWord().router)
+app.include_router(addWord("GiaLai").router)
+app.include_router(updateWord("GiaLai").router)
 app.include_router(changeCorpus("GiaLai").router)

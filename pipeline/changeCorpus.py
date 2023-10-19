@@ -6,13 +6,15 @@ grand_dir = os.path.abspath(os.path.join(parent_dir, '..'))
 # Add the directories to sys.path
 sys.path.extend([script_dir, parent_dir, grand_dir])
 
+
+from GraphTranslation.services.base_service import BaseServiceSingleton
 from pipeline.translation import Translator
 import os
 from objects.singleton import Singleton
 
-class ChangeCorpus:
+class ChangeCorpus(BaseServiceSingleton):
     def __init__(self, area):
-        super(ChangeCorpus, self).__init__()
+        super(ChangeCorpus, self).__init__(area=area)
         self.area = area
 
     def changeCorpus(self, changeTo):
@@ -29,7 +31,7 @@ class ChangeCorpus:
                 del Singleton._instances[cls]
                 cls = None
             
-            #print(dict(Singleton._instances))
+        #print(dict(Singleton._instances))
         #newTrans = Translator(area=changeTo)
         #print(newTrans)
         

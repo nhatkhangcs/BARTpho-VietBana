@@ -3,22 +3,21 @@ from objects.data import AddData
 
 # import Adder
 from pipeline.updateword import Update
+from apis.routes.translation import TranslateRoute
 
 class updateWord(BaseRoute):
-    def __init__(self):
+    def __init__(self, area):
         super(updateWord, self).__init__(prefix="/updateword")
-        self.pipeline = Update()
+        self.pipeline = Update(area)
+        self.area = area
 
-    def add_word_func(self, data: AddData):
-        success = self.pipeline(data.word, data.translation)
-        if success:
-            return "Updated: " + data.word + " - " + data.translation
-        else:
-            return "Failed"
+    def update_word(self, data: AddData):
+        self.pipeline(data.word, data.translation)
+        TranslateRoute.changePipeline(area=self.area)
     
     def create_routes(self):
         router = self.router
 
         @router.post("/vi_ba")
         async def add_word(data: AddData):
-            return await self.wait(self.add_word_func, data)
+            return await self.wait(self.update_word, data)

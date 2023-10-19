@@ -12,18 +12,18 @@ from objects.data import AddData
 
 # import Adder
 from pipeline.addword import Adder
+from apis.routes.translation import TranslateRoute
+
 
 class addWord(BaseRoute):
-    def __init__(self):
+    def __init__(self, area):
         super(addWord, self).__init__(prefix="/addword")
-        self.pipeline = Adder()
+        self.pipeline = Adder(area)
+        self.area = area
 
     def add_word_func(self, data: AddData):
-        success = self.pipeline(data.word, data.translation)
-        if success:
-            return "Added"
-        else:
-            return "Failed"
+        self.pipeline(data.word, data.translation)
+        TranslateRoute.changePipeline(area=self.area)
     
     def create_routes(self):
         router = self.router
