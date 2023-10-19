@@ -10,18 +10,19 @@ from GraphTranslation.apis.routes.base_route import BaseRoute
 from objects.data import Corpus
 
 from pipeline.changeCorpus import ChangeCorpus
+from apis.routes.translation import TranslateRoute
 
 class changeCorpus(BaseRoute):
-    def __init__(self):
+    def __init__(self, area):
         super(changeCorpus, self).__init__(prefix="/changeCorpus")
-        self.pipeline = ChangeCorpus()
+        self.pipeline = ChangeCorpus(area)
+        self.area = area
 
     def change_corpus_func(self, data: Corpus):
+        
         success = self.pipeline(data.area)
-        if success:
-            return "Changed"
-        else:
-            return "Failed"
+        TranslateRoute.changePipeline(trans=success, area=data.area)
+        
     
     def create_routes(self):
         router = self.router
@@ -29,3 +30,5 @@ class changeCorpus(BaseRoute):
         @router.post("/vi_ba")
         async def change_corpus(data: Corpus):
             return await self.wait(self.change_corpus_func, data)
+        
+#if __name__ == "__main__":

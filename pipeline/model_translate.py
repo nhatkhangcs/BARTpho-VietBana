@@ -17,6 +17,7 @@ class ModelTranslator(BaseServiceSingleton):
         self.tokenizer = AutoTokenizer.from_pretrained(checkpoint_path)
         self.model = CustomMbartModel.from_pretrained(checkpoint_path).to(self.device)
         self.model = self.model.eval()
+        self.area = area
 
     @staticmethod
     def norm_text(line):

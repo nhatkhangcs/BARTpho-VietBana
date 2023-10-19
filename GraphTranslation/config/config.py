@@ -8,13 +8,13 @@ from objects.singleton import Singleton
 
 class Config(metaclass=Singleton):
     # Binh Dinh
-    BinhDinh = "data/BinhDinh"
+    BinhDinh = "BinhDinh"
 
     # Gia Lai
-    GiaLai = "data/GiaLai"
+    GiaLai = "GiaLai"
 
     # KonTum
-    KonTum = "data/KonTum"
+    KonTum = "KonTum"
 
     dst_words_paths = "dictionary/dict.ba"
     src_words_paths = "dictionary/dict.vi"
@@ -92,14 +92,15 @@ class Config(metaclass=Singleton):
         full_path_dst = self.dst_words_paths
         full_path_src = self.src_words_paths
         if area == self.BinhDinh:
-            full_path_dst = self.BinhDinh + "/" + full_path_dst
-            full_path_src = self.BinhDinh + "/" + full_path_src
+            full_path_dst = "data/" + self.BinhDinh + "/" + full_path_dst
+            full_path_src = "data/" + self.BinhDinh + "/" + full_path_src
         elif area == self.GiaLai:
-            full_path_dst = self.GiaLai + "/" + full_path_dst
-            full_path_src = self.GiaLai + "/" + full_path_src
+            full_path_dst = "data/" + self.GiaLai + "/" + full_path_dst
+            full_path_src = "data/" + self.GiaLai + "/" + full_path_src
         else:
-            full_path_dst = self.KonTum + "/" + full_path_dst
-            full_path_src = self.KonTum + "/" + full_path_src
+            full_path_dst = "data/" + self.KonTum + "/" + full_path_dst
+            full_path_src = "data/" + self.KonTum + "/" + full_path_src
+        print(full_path_dst, full_path_src)
         if self._dst_words is None or self._src_words is None or self._src_dst_mapping is None:
             all_dst_words = []
             all_src_words = []
@@ -108,14 +109,22 @@ class Config(metaclass=Singleton):
             # for dst_words_path, src_words_path in zip(full_path_dst, full_path_src):
             dst_words = [item.replace("\n", "").strip()
                          for item in open(dst_words_path, "r", encoding="utf8").readlines()]
+            #print(len(dst_words))
             dst_words = [item for item in dst_words if len(item) > 0]
+            #print(len(dst_words))
             dst_words += [self.upper_start_chars(w) for w in dst_words]
+            #print(len(dst_words))
             dst_words += [w.lower() for w in dst_words]
+            #print(len(dst_words))
             src_words = [item.replace("\n", "").strip()
                          for item in open(src_words_path, "r", encoding="utf8").readlines()]
+            #print(len(src_words))
             src_words = [item for item in src_words if len(item) > 0]
+            #print(len(src_words))
             src_words += [self.upper_start_chars(w) for w in src_words]
+            #print(len(src_words))
             src_words += [w.lower() for w in src_words]
+            #print(len(src_words))
             if len(dst_words) != len(src_words):
                 raise ValueError("Ba dict must be equal size to Vi dict")
             all_dst_words += dst_words
@@ -155,4 +164,5 @@ class Config(metaclass=Singleton):
     #@property
     def src_dst_mapping(self, area):
         self.load_src_dst_dict(area)
+        #print(dict(self._src_dst_mapping))
         return self._src_dst_mapping

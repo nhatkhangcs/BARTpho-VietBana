@@ -43,7 +43,7 @@ class GraphService(BaseServiceSingleton):
                 dst_word, src_word, RelationTypes.TRANSLATE)
 
     def load_from_dictionary(self):
-        full_path = self.config.src_dst_mapping(self.area)
+        map_dic = self.config.src_dst_mapping(self.area)
         # if self.area == "BinhDinh":
         #     for src, dst in full_path:
         #     full_path = self.config.BinhDinh + "/" + full_path
@@ -52,17 +52,19 @@ class GraphService(BaseServiceSingleton):
         # else:
         #     full_path = self.config.KonTum + "/" + full_path
         # for each src, dst in full path: self.config.area + "/" + self.config.src_dst_mapping
-        for src, dst in full_path:
-            if self.area == "BinhDinh":
-                src = self.config.BinhDinh + '/' + src
-                dst = self.config.BinhDinh + '/' + dst
-            elif self.area == "GiaLai":
-                src = self.config.GiaLai + '/' + src
-                dst = self.config.GiaLai + '/' + dst
-            else:
-                src = self.config.KonTum + '/' + src
-                dst = self.config.KonTum + '/' + dst
-        for src, dst in full_path:
+        # for src, dst in full_path:
+        #     if self.area == "BinhDinh":
+        #         src = self.config.BinhDinh + '/' + src
+        #         dst = self.config.BinhDinh + '/' + dst
+        #     elif self.area == "GiaLai":
+        #         src = self.config.GiaLai + '/' + src
+        #         dst = self.config.GiaLai + '/' + dst
+        #     else:
+        #         src = self.config.KonTum + '/' + src
+        #         dst = self.config.KonTum + '/' + dst
+        for src, dst in map_dic:
+            #print("src", src)
+            #print("dst", dst)
             src_word = Word(src, language=Languages.SRC)
             dst_word = Word(dst, language=Languages.DST)
             src_word = self.graph.add_word(src_word)
@@ -96,85 +98,88 @@ class GraphService(BaseServiceSingleton):
     def load_from_monolingual_corpus(self):
         def load_from_lang_corpus(language):
             if self.area == "BinhDinh":
-                appending = self.config.BinhDinh + '/'
+                appending = "data/" + self.config.BinhDinh + '/'
             elif self.area == "GiaLai":
-                appending = self.config.GiaLai + '/'
+                appending = "data/" + self.config.GiaLai + '/'
             else:
-                appending = self.config.KonTum + '/'
+                appending = "data/" + self.config.KonTum + '/'
+            newpath = []
             if language == Languages.SRC:
                 for path in self.config.src_monolingual_paths:
-                    file_path = appending + path
+                    newpath.append(appending + path)
             else:
                 for path in self.config.dst_monolingual_paths:
-                    file_path = appending + path
+                    newpath.append(appending + path)
                 # count = 0
-            with open(file_path, "r", encoding="utf8") as file:
-                for _, line in tqdm(enumerate(file), desc=f"LOAD FROM MONOLINGUAL CORPUS - {file_path}"):
-                    sentence = self.nlp_core_service.annotate(
-                        text=line, language=language)
-                    for i in range(len(sentence)):
-                        src_sent_word = sentence[i]
-                        for src_child in src_sent_word.all_children:
-                            for dst_child in src_sent_word.all_children:
-                                if dst_child == src_child:
-                                    continue
-                                if src_child.end_index < dst_child.begin_index:
-                                    src_word = self.graph.add_word(
-                                        src_child.to_word())
-                                    dst_word = self.graph.add_word(
-                                        dst_child.to_word())
-                                    # distance = dst_child.sent_distance(src_child)
-                                    distance = dst_child.begin_index - src_child.end_index
-                                    relation = self.graph.add_relation_with_type(src_word, dst_word,
-                                                                                 RelationTypes.NEXT)
-                                    if dst_child.is_upper and not src_child.is_upper:
-                                        dst_word = self.graph.add_word(
-                                            dst_child.to_ent_word())
-                                        relation = self.graph.add_relation_with_type(src_word, dst_word,
-                                                                                     RelationTypes.NEXT)
-                                    elif not dst_child.is_upper and src_child.is_upper:
-                                        src_word = self.graph.add_word(
-                                            src_child.to_ent_word())
-                                        relation = self.graph.add_relation_with_type(src_word, dst_word,
-                                                                                     RelationTypes.NEXT)
-                                    elif dst_child.is_upper and src_child.is_upper:
-                                        src_word = self.graph.add_word(
-                                            src_child.to_ent_word())
-                                        dst_word = self.graph.add_word(
-                                            dst_child.to_ent_word())
-                                        relation = self.graph.add_relation_with_type(src_word, dst_word,
-                                                                                     RelationTypes.NEXT)
-
-                                    relation.add_distance(distance)
-                                    self.graph.update_relation_count(
-                                        relation)
-                                    # count += 1
-                            if i == len(sentence) - 1:
-                                break
+            print(newpath)
+            for file_path in newpath:
+                with open(file_path, "r", encoding="utf8") as file:
+                    for _, line in tqdm(enumerate(file), desc=f"LOAD FROM MONOLINGUAL CORPUS - {file_path}"):
+                        sentence = self.nlp_core_service.annotate(
+                            text=line, language=language)
+                        for i in range(len(sentence)):
+                            src_sent_word = sentence[i]
                             for src_child in src_sent_word.all_children:
-                                for j in range(i+1, min(i + 1 + self.config.bow_window_size, len(sentence))):
-                                    dst_sent_word = sentence[j]
-                                    for dst_child in dst_sent_word.all_children:
+                                for dst_child in src_sent_word.all_children:
+                                    if dst_child == src_child:
+                                        continue
+                                    if src_child.end_index < dst_child.begin_index:
                                         src_word = self.graph.add_word(
                                             src_child.to_word())
                                         dst_word = self.graph.add_word(
                                             dst_child.to_word())
                                         # distance = dst_child.sent_distance(src_child)
-                                        distance = src_sent_word.end_index - src_child.end_index + \
-                                            j - i + dst_child.begin_index - dst_sent_word.begin_index
-                                        # print(str((src_word.text, dst_word.text, distance)))
+                                        distance = dst_child.begin_index - src_child.end_index
                                         relation = self.graph.add_relation_with_type(src_word, dst_word,
-                                                                                     RelationTypes.NEXT)
+                                                                                    RelationTypes.NEXT)
+                                        if dst_child.is_upper and not src_child.is_upper:
+                                            dst_word = self.graph.add_word(
+                                                dst_child.to_ent_word())
+                                            relation = self.graph.add_relation_with_type(src_word, dst_word,
+                                                                                        RelationTypes.NEXT)
+                                        elif not dst_child.is_upper and src_child.is_upper:
+                                            src_word = self.graph.add_word(
+                                                src_child.to_ent_word())
+                                            relation = self.graph.add_relation_with_type(src_word, dst_word,
+                                                                                        RelationTypes.NEXT)
+                                        elif dst_child.is_upper and src_child.is_upper:
+                                            src_word = self.graph.add_word(
+                                                src_child.to_ent_word())
+                                            dst_word = self.graph.add_word(
+                                                dst_child.to_ent_word())
+                                            relation = self.graph.add_relation_with_type(src_word, dst_word,
+                                                                                        RelationTypes.NEXT)
+
                                         relation.add_distance(distance)
                                         self.graph.update_relation_count(
                                             relation)
                                         # count += 1
-                        # if n_line == 500:
-                        #     break
-                        #     if count > 1000:
-                        #         break
-                        # if count > 1000:
-                        #     break
+                                if i == len(sentence) - 1:
+                                    break
+                                for src_child in src_sent_word.all_children:
+                                    for j in range(i+1, min(i + 1 + self.config.bow_window_size, len(sentence))):
+                                        dst_sent_word = sentence[j]
+                                        for dst_child in dst_sent_word.all_children:
+                                            src_word = self.graph.add_word(
+                                                src_child.to_word())
+                                            dst_word = self.graph.add_word(
+                                                dst_child.to_word())
+                                            # distance = dst_child.sent_distance(src_child)
+                                            distance = src_sent_word.end_index - src_child.end_index + \
+                                                j - i + dst_child.begin_index - dst_sent_word.begin_index
+                                            # print(str((src_word.text, dst_word.text, distance)))
+                                            relation = self.graph.add_relation_with_type(src_word, dst_word,
+                                                                                        RelationTypes.NEXT)
+                                            relation.add_distance(distance)
+                                            self.graph.update_relation_count(
+                                                relation)
+                                            # count += 1
+                            # if n_line == 500:
+                            #     break
+                            #     if count > 1000:
+                            #         break
+                            # if count > 1000:
+                            #     break
 
         load_from_lang_corpus(Languages.SRC)
         load_from_lang_corpus(Languages.DST)
