@@ -8,30 +8,30 @@ grand_dir = os.path.abspath(os.path.join(parent_dir, '..'))
 sys.path.extend([script_dir, parent_dir, grand_dir])
 
 from GraphTranslation.apis.routes.base_route import BaseRoute
-from objects.data import AddData
+from objects.data import textInput
 
 # import Adder
-from pipeline.addword import Adder
+from pipeline.deleteword import DeleteWord
 from apis.routes.translation import TranslateRoute
 
 
-class addWord(BaseRoute):
+class deleteWord(BaseRoute):
     def __init__(self, area):
-        super(addWord, self).__init__(prefix="/addword")
-        self.pipeline = Adder(area)
+        super(deleteWord, self).__init__(prefix="/deleteword")
+        self.pipeline = DeleteWord(area)
         self.area = area
 
-    def add_word_func(self, data: AddData):
-        success = self.pipeline(data.word, data.translation)
+    def delete_func(self, data: textInput):
+        success = self.pipeline(data.text)
         if success:
             TranslateRoute.changePipeline(area=self.area)
-            return "Words added successfully"
+            return "Word deleted successfully"
         else:
-            return "Words already exists"
+            return "No words found"
     
     def create_routes(self):
         router = self.router
 
         @router.post("/vi_ba")
-        async def add_word(data: AddData):
-            return await self.wait(self.add_word_func, data)
+        async def delete_word(data: textInput):
+            return await self.wait(self.delete_func, data)

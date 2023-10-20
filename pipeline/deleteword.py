@@ -1,3 +1,4 @@
+from objects.singleton import Singleton
 from GraphTranslation.services.base_service import BaseServiceSingleton
 import os
 import sys
@@ -7,42 +8,57 @@ grand_dir = os.path.abspath(os.path.join(parent_dir, '..'))
 # Add the directories to sys.path
 sys.path.extend([script_dir, parent_dir, grand_dir])
 
-from objects.singleton import Singleton
 
-class Update(BaseServiceSingleton):
+# import translator
+
+# app = Celery('addword', broker='redis://127.0.0.1/0', backend='redis://127.0.0.1/0')
+
+
+class DeleteWord(BaseServiceSingleton):
     def __init__(self, area):
-        super(Update, self).__init__(area)
+        super(DeleteWord, self).__init__(area=area)
         self.vi = []
         self.ba = []
         self.area = area
 
-    def update(self, word, translation):
+    def remove_word(self, word):
+        # remove active tasks
+        # i = app.control.inspect()
+        # jobs = i.active()
+        # for hostname in jobs:
+        #     tasks = jobs[hostname]
+        #     for task in tasks:
+        #         app.control.revoke(task['id'], terminate=True)
         full_path_dict_vi = "data/" + self.area + "/dictionary/dict.vi"
         full_path_dict_ba = "data/" + self.area + "/dictionary/dict.ba"
 
+        flag = False
         with open(full_path_dict_vi, "r", encoding="utf-8") as f:
             self.vi = [line.strip() for line in f.readlines()]
         with open(full_path_dict_ba, "r", encoding="utf-8") as f:
             self.ba = [line.strip() for line in f.readlines()]
         # check if word exist in dictionary. If yes, return nothing
-        # if word in self.vi or translation in self.ba:
-        #     return False
-        # cache_path = "data/cache/graph.json"
-        # if os.path.exists(cache_path):
-        #     print("removing graph.json")
-        #     os.remove(cache_path)
-        # find that word in the dictionary, if the word exist then change the translation
-        if word in self.vi:
-            if self.ba[self.vi.index(word)] == translation:
-                return False
+        # create pairs of words
 
-            self.ba[self.vi.index(word)] = translation
-            # also change in the txt file
+        while word in self.vi:
+            index = self.vi.index(word)
+            del self.vi[index]
+            del self.ba[index]
+            flag = True
+        
+
+        # call add_word_to_dict function
+        # add_word_to_dict(word, translation)
+
+        if flag:
+            # rewrite files
+            with open(full_path_dict_vi, "w", encoding="utf-8") as f:
+                for line in self.vi:
+                    f.write(line + "\n")
             with open(full_path_dict_ba, "w", encoding="utf-8") as f:
-                f.write("\n".join(self.ba))
-            # write a new line to end of file
-            with open(full_path_dict_ba, "a", encoding="utf-8") as f:
-                f.write("\n")
+                for line in self.ba:
+                    f.write(line + "\n")
+
             if os.path.exists("data/cache/graph.json"):
                 os.remove("data/cache/graph.json")
 
@@ -53,21 +69,23 @@ class Update(BaseServiceSingleton):
                 del Singleton._instances[cls]
                 cls = None
 
-            #print("Updated word")
+            # print("Added new words")
             return True
 
         else:
-            #print("Could not find word. Maybe a new word?")
+            # print("Words exist in dictionary")
             return False
 
-    def __call__(self, word, translation):
-        res = self.update(word, translation)
+    def __call__(self, word):
+        res = self.remove_word(word)
         return res
 
 
-if __name__ == "__main__":
-    updator = Update()
-    if (updator("nothing", "special")):
-        print("added")
-    else:
-        print("failed")
+# if __name__ == "__main__":
+#     delete = DeleteWord()
+
+#     if (delete(["nothing"], ["special"])):
+#         print("deleted")
+#     else:
+#         print("failed")
+#     # load_graph.delay()

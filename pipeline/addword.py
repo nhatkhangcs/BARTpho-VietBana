@@ -33,9 +33,9 @@ class Adder(BaseServiceSingleton):
 
         flag = False
         with open(full_path_dict_vi, "r", encoding="utf-8") as f:
-            self.ba = [line.strip() for line in f.readlines()]
-        with open(full_path_dict_ba, "r", encoding="utf-8") as f:
             self.vi = [line.strip() for line in f.readlines()]
+        with open(full_path_dict_ba, "r", encoding="utf-8") as f:
+            self.ba = [line.strip() for line in f.readlines()]
         # check if word exist in dictionary. If yes, return nothing
         # create pairs of words
         
@@ -79,20 +79,22 @@ class Adder(BaseServiceSingleton):
                     del Singleton._instances[cls]
                     cls = None
 
-            print("Added new words")
+            #print("Added new words")
+            return True
         
         else:
-            print("Words exist in dictionary")
+            #print("Words exist in dictionary")
+            return False
 
     def __call__(self, word, translation):
         res = self.add_word_func(word, translation)
         return res
 
-if __name__ == "__main__":
-    adder = Adder()
+# if __name__ == "__main__":
+#     adder = Adder()
     
-    if(adder(["nothing"], ["special"])):
-        print("added")
-    else:
-        print("failed")
-    # load_graph.delay()
+#     if(adder(["nothing"], ["special"])):
+#         print("added")
+#     else:
+#         print("failed")
+#     # load_graph.delay()

@@ -1,5 +1,5 @@
 from GraphTranslation.apis.routes.base_route import BaseRoute
-from objects.data import AddData
+from objects.data import ModifyData
 
 # import Adder
 from pipeline.updateword import Update
@@ -11,13 +11,17 @@ class updateWord(BaseRoute):
         self.pipeline = Update(area)
         self.area = area
 
-    def update_word(self, data: AddData):
-        self.pipeline(data.word, data.translation)
-        TranslateRoute.changePipeline(area=self.area)
+    def update_word(self, data: ModifyData):
+        success = self.pipeline(data.word, data.translation)
+        if success:
+            TranslateRoute.changePipeline(area=self.area)
+            return "Word updated successfully"
+        else:
+            return "Could not find word or new meaning is unchanged"
     
     def create_routes(self):
         router = self.router
 
         @router.post("/vi_ba")
-        async def add_word(data: AddData):
+        async def add_word(data: ModifyData):
             return await self.wait(self.update_word, data)

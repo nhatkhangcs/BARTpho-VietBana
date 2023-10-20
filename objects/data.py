@@ -20,12 +20,29 @@ class AddData(BaseModel):
         self.word = word
         self.translation = translation
 
+class ModifyData(BaseModel):
+    # word and translation are both array type
+    word: str
+    translation: str
+
+    def __init__(self, word, translation):
+        super(ModifyData, self).__init__(word=word, translation=translation)
+        self.word = word
+        self.translation = translation
+
 class Corpus(BaseModel):
     area: str
 
     def __init__(self, area: str):
         super(Corpus, self).__init__(area=area)
         self.area = area
+
+class textInput(BaseModel):
+    text: str
+
+    def __init__(self, text: str):
+        super(textInput, self).__init__(text=text)
+        self.text = text
 
 class OutData(BaseModel):
     src: str

@@ -31,12 +31,6 @@ class ChangeCorpus(BaseServiceSingleton):
                 del Singleton._instances[cls]
                 cls = None
             
-        #print(dict(Singleton._instances))
-        #newTrans = Translator(area=changeTo)
-        #print(newTrans)
-        
-        #print(dict(Singleton._instances))
-        print(f"Changed to {changeTo}")
         self.area = changeTo
         
         #return newTrans

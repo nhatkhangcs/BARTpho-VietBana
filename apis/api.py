@@ -8,6 +8,7 @@ from apis.routes.translation import TranslateRoute
 from apis.routes.addword import addWord
 from apis.routes.update import updateWord
 from apis.routes.changeCorpus import changeCorpus
+from apis.routes.deleteword import deleteWord
 # from fastapi.middleware.cors import CORSMiddleware
 
 from starlette.middleware.cors import CORSMiddleware
@@ -34,3 +35,4 @@ app.include_router(TranslateRoute("GiaLai").router)
 app.include_router(addWord("GiaLai").router)
 app.include_router(updateWord("GiaLai").router)
 app.include_router(changeCorpus("GiaLai").router)
+app.include_router(deleteWord("GiaLai").router)
