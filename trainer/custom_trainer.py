@@ -1,3 +1,11 @@
+import os
+import sys
+script_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.abspath(os.path.join(script_dir, '..'))
+grand_dir = os.path.abspath(os.path.join(parent_dir, '..'))
+# Add the directories to sys.path
+sys.path.extend([script_dir, parent_dir, grand_dir])
+
 import transformers
 from datasets import load_metric
 from transformers import AutoTokenizer
@@ -19,13 +27,22 @@ def get_metric(metric_, tokenizer_):
         preds, labels = eval_preds
         if isinstance(preds, tuple):
             preds = preds[0]
+
+        # pres and labels are pairs
+        # filter out if labels == -100 or preds == -100
+        preds = np.where(preds != -100, preds, tokenizer_.pad_token_id)
+        
+        
         decoded_preds = tokenizer_.batch_decode(preds, skip_special_tokens=True)
-
         # Replace -100 in the labels as we can't decode them.
-        labels = np.where(labels != -100, labels, tokenizer_.pad_token_id)
-        decoded_labels = tokenizer_.batch_decode(labels, skip_special_tokens=True)
 
+        labels = np.where(labels != -100, labels, tokenizer_.pad_token_id)
+        # for label in labels:
+        #     if -100 in label:
+        #         print(label)
+        decoded_labels = tokenizer_.batch_decode(labels, skip_special_tokens=True)
         # Some simple post-processing
+        # print(decoded_labels)
         decoded_preds, decoded_labels = postprocess_text(decoded_preds, decoded_labels)
         result = metric_.compute(predictions=decoded_preds, references=decoded_labels)
         result = {"bleu": result["score"]}
@@ -37,11 +54,10 @@ def get_metric(metric_, tokenizer_):
 
     return compute_metrics
 
-
 def main():
     WORD_DROPOUT_RATIO = 0.15
     WORD_REPLACEMENT_RATIO = 0.15
-    model_checkpoint = "pretrained/bartpho_syllable"
+    model_checkpoint = "pretrained/best_aligned"
     metric = load_metric("sacrebleu")
     tokenizer = AutoTokenizer.from_pretrained(model_checkpoint)
     model = CustomMbartModel.from_pretrained(model_checkpoint)
@@ -50,7 +66,7 @@ def main():
                              word_replacement_ratio=WORD_REPLACEMENT_RATIO)
     compute_metric_func = get_metric(metric, tokenizer)
 
-    train_dataset, valid_dataset, test_dataset = ViBaDataset.get_datasets(data_folder="data/split_num",
+    train_dataset, valid_dataset, test_dataset = ViBaDataset.get_datasets(data_folder="data/all",
                                                                           tokenizer_path=model_checkpoint)
 
     batch_size = 4
@@ -89,7 +105,7 @@ def main():
 
     trainer.train()
 
-    print(trainer.evaluate(test_dataset, num_beams=5, max_length=512))
+    print(trainer.evaluate(eval_dataset=test_dataset, num_beams=5, max_length=512))
     trainer.save_model("checkpoint/best_4_split_num")
 
 

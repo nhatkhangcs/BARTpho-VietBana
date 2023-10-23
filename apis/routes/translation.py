@@ -21,17 +21,13 @@ class TranslateRoute(BaseRoute):
         return OutData(src=data.text, tgt=out_str)
     
     @staticmethod
-    def changePipeline(area: str):
-        #print(self.pipeline)
-        #del self.pipeline
+    def changePipelineAdjust(area: str):
+        TranslateRoute.pipeline = Translator(area)
+    
+    @staticmethod
+    def changePipelineCorpus(area: str):
         print("Changing to:", area)
         TranslateRoute.area = area
-        TranslateRoute.pipeline = Translator(area)
-
-    @staticmethod
-    def changePipeline(area: str):
-        #print(self.pipeline)
-        #del self.pipeline
         TranslateRoute.pipeline = Translator(area)
 
     def create_routes(self):

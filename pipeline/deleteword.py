@@ -63,11 +63,7 @@ class DeleteWord(BaseServiceSingleton):
                 os.remove("data/cache/graph.json")
 
             for cls in dict(Singleton._instances).keys():
-                # print(type(cls))
-                # if cls != apis.routes.changeCorpus.changeCorpus:
-                # print("ChangeCorpus found\n")
                 del Singleton._instances[cls]
-                cls = None
 
             # print("Added new words")
             return True

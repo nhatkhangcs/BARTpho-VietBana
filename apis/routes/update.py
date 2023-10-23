@@ -14,7 +14,7 @@ class updateWord(BaseRoute):
     def update_word(self, data: ModifyData):
         success = self.pipeline(data.word, data.translation)
         if success:
-            TranslateRoute.changePipeline(area=self.area)
+            TranslateRoute.changePipelineAdjust(area=self.area)
             return "Word updated successfully"
         else:
             return "Could not find word or new meaning is unchanged"

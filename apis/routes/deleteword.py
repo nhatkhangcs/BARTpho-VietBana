@@ -24,7 +24,7 @@ class deleteWord(BaseRoute):
     def delete_func(self, data: textInput):
         success = self.pipeline(data.text)
         if success:
-            TranslateRoute.changePipeline(area=self.area)
+            TranslateRoute.changePipelineAdjust(area=self.area)
             return "Word deleted successfully"
         else:
             return "No words found"

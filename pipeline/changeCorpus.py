@@ -25,11 +25,8 @@ class ChangeCorpus(BaseServiceSingleton):
             os.remove("data/cache/graph.json")
             
         for cls in dict(Singleton._instances).keys():
-            #print(type(cls))
-            #if cls != apis.routes.changeCorpus.changeCorpus:
-                #print("ChangeCorpus found\n")
-                del Singleton._instances[cls]
-                cls = None
+            del Singleton._instances[cls]
+            cls = None
             
         self.area = changeTo
         
