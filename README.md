@@ -21,7 +21,7 @@
   [Link](https://drive.google.com/drive/folders/10M4l95A7ImxfSPtV8JzAWNm5ytrUwOgC?usp=sharing)
 * First: Start VNCoreNLP server at:
 
-    ```> vncorenlp -Xmx2g <path_to_VnCoreNLP-1.1.1.jar> -p 9000 -a "wseg,pos,ner,parse"```
+    ```> vncorenlp -Xmx2g "D:\AI Learning\NLP\DA\BARTVIBA\GraphTranslation\vncorenlp\VnCoreNLP-1.1.1.jar" -p 9000 -a "wseg,pos,ner,parse"```
 
     Where ```path_to_VnCoreNLP-1.1.1.jar``` is the full path (or relative path) to the file containing ```VnCoreNLP-1.1.1.jar```
 

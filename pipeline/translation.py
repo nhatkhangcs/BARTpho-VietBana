@@ -49,7 +49,7 @@ class Translator(BaseServiceSingleton):
             #print(sentence.mapped_words)
             translation_graph = TranslationGraph(src_sent=sentence)
             translation_graph.update_src_sentence()         # Vị trí cần thực hiện việc translate các token trong dictionary
-            print(sentence.mapped_words)
+            # print(sentence.mapped_words)
             if model == "BART_CHUNK":
                 mapped_words = [w for w in translation_graph.src_sent if len(w.translations) > 0 or w.is_ner
                                 or w.is_end_sent or w.is_end_paragraph or w.is_punctuation or w.is_conjunction or w.is_in_dictionary]
@@ -156,5 +156,5 @@ class Translator(BaseServiceSingleton):
 if __name__ == "__main__":
     translator = Translator("GiaLai")
     # print(translator("abŭt krĕnh adrang"))
-    # print(translator("B`ai bơ tho tho ̆ ng nan b`ai pơhrăm"))
-    print(translator("pơ pơ pơ tơm chơchă bôl tơm blu ng"))
+    print(translator("B`ai bơ tho tho ̆ ng Vĩnh Thạch nan Vĩnh Thạch b`ai pơhrăm"))
+    # print(translator("pơ pơ pơ tơm chơchă bôl tơm blu ng"))

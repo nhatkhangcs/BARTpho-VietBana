@@ -84,21 +84,41 @@ class SrcNLPCoreService(NLPCoreService):
         else:
             return super().word_n_grams(words, n)
 
-    # Use for checking the token is in dictionary or not
+    # Use for checking the token is in dictionary or not (Old versions)
+    # def map_dictionary(self, text):
+    #     text = text.lower()
+    #     text = " ".join(word_tokenize(text))
+    #     text_ = f" {text} "
+    #     mapped_words = set()
+    #     for n_gram in range(self.max_gram, 0, -1):
+    #         syllables = word_tokenize(text_)
+    #         candidates = self.word_n_grams(syllables, n=n_gram)
+    #         for candidate in candidates:
+    #             if candidate in self.word_set:
+    #                 mapped_words.add(candidate)
+    #                 text_ = text_.replace(f" {candidate} ", "  ")
+
+    #     return mapped_words
+
+    # Use recursive to get the combination
     def map_dictionary(self, text):
         text = text.lower()
         text = " ".join(word_tokenize(text))
         text_ = f" {text} "
         mapped_words = set()
+
         for n_gram in range(self.max_gram, 0, -1):
             syllables = word_tokenize(text_)
             candidates = self.word_n_grams(syllables, n=n_gram)
             for candidate in candidates:
                 if candidate in self.word_set:
                     mapped_words.add(candidate)
-                    text_ = text_.replace(f" {candidate} ", "  ")
+                    for subtext in text_.split(f" {candidate} "): mapped_words |= self.map_dictionary(subtext)
+                    return mapped_words
+                    
+        return set()
 
-        return mapped_words
+
 
     @staticmethod
     def combine_ner(words: [SentWord]):
@@ -174,7 +194,6 @@ class SrcNLPCoreService(NLPCoreService):
         
         return new_list
 
-
     def _annotate(self, text):
         text = text.strip()
         for c in string.punctuation:
@@ -191,8 +210,9 @@ class SrcNLPCoreService(NLPCoreService):
             p_sentences = self.nlpcore_connector.annotate(text=paragraph)["sentences"] # Trả về NER và posTag of each token
 
             for sentence in p_sentences:
+                print("After CoreNLP segmentation: ", [f"{i['index']}:{i['form']}" for i in sentence])
                 sentence = self.NER_filter(sentence)
-                print("Word segmentation: ", [f"{i['index']}:{i['form']}" for i in sentence])
+                print("After filter NER segmentation: ", [f"{i['index']}:{i['form']}" for i in sentence])
                 offset = len(words) - 1
                 for word in sentence:
                     word["index"] += offset
