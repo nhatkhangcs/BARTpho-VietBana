@@ -1,4 +1,4 @@
 
 class Languages:
-    SRC = "BA"
-    DST = "VI"
+    SRC = "VI"
+    DST = "BA"

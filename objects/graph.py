@@ -1302,7 +1302,7 @@ class Sentence:
     def get_chunk(self, from_index: int, to_index: int):
         if from_index > to_index:
             return
-        words = [w for w in self.words if from_index <= w.begin_index and w.end_index <= to_index]
+        words = [w for w in self.words if from_index < w.begin_index and w.end_index < to_index]
         if len(words) > 0:
             return Chunk(words)
 
@@ -1364,7 +1364,7 @@ class Sentence:
     def mapped_words(self):
         return self.words
 
-    def update_mapped_words(self):
+    def update_mapped_words_list(self):
         for word in self.words:
             if '@' not in word.text:
                 for node in word.out_relations.values():
@@ -1488,7 +1488,7 @@ class TranslationGraph(Graph):
 
     def update_src_sentence(self):
         if self.src_sent is not None:
-            self.src_sent.update_mapped_words() # Update mapping word in here
+            self.src_sent.update_mapped_words_list() # Update mapping word in here
 
     @staticmethod
     def update_sentence_relation(relation: Relation):

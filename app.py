@@ -1,5 +1,5 @@
-import setproctitle
-setproctitle.setproctitle('bahnar_tts_nmt')
+#import setproctitle
+#setproctitle.setproctitle('bahnar_tts_nmt')
 import uvicorn
 from utils.logger import setup_logging
 
@@ -8,7 +8,7 @@ HUY_5G = "192.168.31.76"
 HCMUT1 = "10.128.147.168"
 HCMUT2 = "10.130.193.88"
 KHANG_5G = "192.168.1.4"
-PHONG_5G = "192.168.1.9"
+PHONG_5G = "192.168.197.52"
 
 
 def main():

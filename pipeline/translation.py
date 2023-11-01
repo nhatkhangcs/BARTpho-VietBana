@@ -42,25 +42,26 @@ class Translator(BaseServiceSingleton):
             
         if model in ["BART_CHUNK", "BART_CHUNK_NER_ONLY"]:
             s = time.time()
-            sentence = self.graph_translator.nlp_core_service.annotate(text, language=Languages.SRC)
+            sentence = self.graph_translator.nlp_core_service.annotate(text, language=Languages.DST)
             print("NLP CORE TIME", time.time() - s)
-
+            #print("Mapped words", sentence.mapped_words)
             sentence = self.graph_translator.graph_service.add_info_node(sentence) # Update info about the NER
             #print(sentence.mapped_words)
             translation_graph = TranslationGraph(src_sent=sentence)
             translation_graph.update_src_sentence()         # Vị trí cần thực hiện việc translate các token trong dictionary
-            # print(sentence.mapped_words)
+            
             if model == "BART_CHUNK":
                 mapped_words = [w for w in translation_graph.src_sent if len(w.translations) > 0 or w.is_ner
                                 or w.is_end_sent or w.is_end_paragraph or w.is_punctuation or w.is_conjunction or w.is_in_dictionary]
             else:
                 mapped_words = [w for w in translation_graph.src_sent if w.is_ner
                                 or w.is_end_sent or w.is_end_paragraph or w.is_punctuation or w.is_conjunction]
-
+            #print("Mapped words", sentence.mapped_words)
             result = []
             src_mapping = [] # Có vẻ như không có dùng
             i = 0
-            while i < len(mapped_words) - 1:
+            while i < len(mapped_words):
+                #print("Result now is", result)
                 src_from_node = mapped_words[i]
                 if src_from_node.is_ner:    # Apply các token là NER (Name entity or Number)
                     ner_text = self.graph_translator.translate_ner(src_from_node) # Translating the dictionary in HERE
@@ -70,6 +71,7 @@ class Translator(BaseServiceSingleton):
                         result.append(ner_text)
                 else:   # Apply the token không phải NER
                     translations = src_from_node.dst_word
+                    #print("Translations", translations)
                     result.append(translations)
                     # if len(translations) == 1:
                     #     result.append(translations[0].text)
@@ -77,12 +79,14 @@ class Translator(BaseServiceSingleton):
                     #     result.append(translations)
 
                 src_mapping.append([src_from_node]) # Có vẻ như không có dùng
+                if(i == len(mapped_words) - 1):
+                    break
                 src_to_node = mapped_words[i + 1]
                 if src_from_node.end_index < src_to_node.begin_index - 1:
                     s = time.time()
                     chunk = translation_graph.src_sent.get_chunk(src_from_node.end_index,
-                                                                 src_to_node.begin_index - 1)
-                    
+                                                                 src_to_node.begin_index)
+                    print("Detected chunk:", chunk)
                     if chunk is not None:
                         chunk_text = chunk.text
                         chunk_text = chunk_text.replace("//@", "").replace("/@", "").replace("@", "").replace(".", "").strip()
@@ -92,7 +96,7 @@ class Translator(BaseServiceSingleton):
                             print(f"CHUNK TRANSLATE {chunk.text} -> {translated_chunk} : {time.time() - s}")
                 i += 1
 
-            #print("Result before scoring", result)
+            # print("Result before scoring", result)
             ## Phần dưới này không có tác dụng
             if len(result) >= 3:
                 for i in range(len(result)):
@@ -141,9 +145,9 @@ class Translator(BaseServiceSingleton):
                             result[i] = ' '
                     if i > 0 and result[i-1].endswith("/@") or result[i-1].endswith("//@"):
                         result[i] = result[i].capitalize()
-            print("Result after scoring", result)
+            #print("Result after scoring", result)
             output = result
-
+            # print("Output", output)
             output = "  ".join(output).replace("//@", "\n").replace("/@", ".").replace("@", "")
             while "  " in output or ". ." in output:
                 output = output.replace("  ", " ").replace(". .", ".")
@@ -158,3 +162,4 @@ if __name__ == "__main__":
     # print(translator("abŭt krĕnh adrang"))
     print(translator("B`ai bơ tho tho ̆ ng Vĩnh Thạch nan Vĩnh Thạch b`ai pơhrăm"))
     # print(translator("pơ pơ pơ tơm chơchă bôl tơm blu ng"))
+    # print(translator("Cho một quả trầu cau."))
