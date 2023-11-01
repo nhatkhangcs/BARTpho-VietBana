@@ -59,6 +59,7 @@ class reverseTrans(BaseServiceSingleton):
                 yaml.dump({"DST": Languages.DST}, f)
 
         print(open("data/cache/info.yaml", "r").read())
+        print("reverse translation completed")
         return True
 
     def __call__(self):
