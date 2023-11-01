@@ -29,7 +29,9 @@ class ChangeCorpus(BaseServiceSingleton):
             cls = None
             
         self.area = changeTo
-        
+        # create area.yaml file
+        with open("data/cache/area.yaml", "w") as f:
+            f.write("area: " + changeTo)
         #return newTrans
 
     def __call__(self, changeTo):

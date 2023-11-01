@@ -13,7 +13,7 @@ PHONG_5G = "192.168.197.52"
 
 def main():
     setup_logging()
-    uvicorn.run("apis.api:app", host=PHONG_5G, port=6379, reload=False, log_level="debug",
+    uvicorn.run("apis.api:app", host='localhost', port=6379, reload=False, log_level="debug",
                 workers=1, factory=False, loop="asyncio", timeout_keep_alive=0,
                 )
     

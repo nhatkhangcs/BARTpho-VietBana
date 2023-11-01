@@ -42,7 +42,7 @@ class Translator(BaseServiceSingleton):
             
         if model in ["BART_CHUNK", "BART_CHUNK_NER_ONLY"]:
             s = time.time()
-            sentence = self.graph_translator.nlp_core_service.annotate(text, language=Languages.DST)
+            sentence = self.graph_translator.nlp_core_service.annotate(text, language=Languages.SRC)
             print("NLP CORE TIME", time.time() - s)
             #print("Mapped words", sentence.mapped_words)
             sentence = self.graph_translator.graph_service.add_info_node(sentence) # Update info about the NER
@@ -56,9 +56,9 @@ class Translator(BaseServiceSingleton):
             else:
                 mapped_words = [w for w in translation_graph.src_sent if w.is_ner
                                 or w.is_end_sent or w.is_end_paragraph or w.is_punctuation or w.is_conjunction]
-            #print("Mapped words", sentence.mapped_words)
+            print("Mapped words", sentence.mapped_words)
             result = []
-            src_mapping = [] # Có vẻ như không có dùng
+            src_mapping = []
             i = 0
             while i < len(mapped_words):
                 #print("Result now is", result)
@@ -96,7 +96,7 @@ class Translator(BaseServiceSingleton):
                             print(f"CHUNK TRANSLATE {chunk.text} -> {translated_chunk} : {time.time() - s}")
                 i += 1
 
-            # print("Result before scoring", result)
+            print("Result before scoring", result)
             ## Phần dưới này không có tác dụng
             if len(result) >= 3:
                 for i in range(len(result)):
