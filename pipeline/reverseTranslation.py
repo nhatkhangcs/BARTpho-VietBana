@@ -23,30 +23,17 @@ class reverseTrans(BaseServiceSingleton):
         super(reverseTrans, self).__init__(area=area)
 
     def reverse_translation(self):
-        # remove active tasks
-        # i = app.control.inspect()
-        # jobs = i.active()
-        # for hostname in jobs:
-        #     tasks = jobs[hostname]
-        #     for task in tasks:
-        #         app.control.revoke(task['id'], terminate=True)
-        #         print("revoked task: ", task['id'])
         for cls in dict(Singleton._instances).keys():
             del Singleton._instances[cls]
             cls = None
 
-        #swap
-        # dst_words_paths and src_words_paths
-        # src_monolingual_paths and dst_monolingual_paths
-        # parallel_paths
-        # src_custom_ner_paths and dst_custom_ner_paths
         Config.src_words_paths, Config.dst_words_paths = Config.dst_words_paths, Config.src_words_paths
         Config.src_monolingual_paths, Config.dst_monolingual_paths = Config.dst_monolingual_paths, Config.src_monolingual_paths
         Config.parallel_paths = [(Config.dst_monolingual_paths[0], Config.src_monolingual_paths[0]), 
                                  (Config.dst_monolingual_paths[1], Config.src_monolingual_paths[1]), 
                                  (Config.dst_words_paths, Config.src_words_paths)]
-
         Config.src_custom_ner_path, Config.dst_custom_ner_path = Config.dst_custom_ner_path, Config.src_custom_ner_path
+        
         if os.path.exists("data/cache/graph.json"):
             os.remove("data/cache/graph.json")
 
@@ -57,6 +44,36 @@ class reverseTrans(BaseServiceSingleton):
                 Languages.SRC, Languages.DST = Languages.DST, Languages.SRC
                 yaml.dump({"SRC": Languages.SRC}, f)
                 yaml.dump({"DST": Languages.DST}, f)
+
+                # count number of sentences in train, valid, test of the area
+                datapath = "data/" + self.area + '/'
+                # count number of sentences in train, valid, test of the area
+                with open(datapath + Config.src_monolingual_paths[0], "r", encoding='utf-8') as f1:
+                    src_train_count = len(f1.readlines())
+                with open(datapath + Config.src_monolingual_paths[1], "r", encoding='utf-8') as f2:
+                    src_valid_count = len(f2.readlines())
+                with open(datapath + Config.src_mono_test_paths[0], "r", encoding='utf-8') as f3:
+                    src_test_count = len(f3.readlines())
+                with open(datapath + Config.dst_monolingual_paths[0], "r", encoding='utf-8') as f4:
+                    dst_train_count = len(f4.readlines())
+                with open(datapath + Config.dst_monolingual_paths[1], "r", encoding='utf-8') as f5:
+                    dst_valid_count = len(f5.readlines())
+                with open(datapath + Config.dst_mono_test_paths[0], "r", encoding='utf-8') as f6:
+                    dst_test_count = len(f6.readlines())
+
+                with open("data/cache/info.yaml", "a") as f:
+                    yaml.dump({
+                        "src_train": src_train_count,
+                        "src_valid": src_valid_count,
+                        "src_test": src_test_count,
+                        "dst_train": dst_train_count,
+                        "dst_valid": dst_valid_count,
+                        "dst_test": dst_test_count
+                    }, f)
+
+                with open("data/cache/info.yaml", "r") as f:
+                    print(f.read())
+
 
         print(open("data/cache/info.yaml", "r").read())
         print("reverse translation completed")

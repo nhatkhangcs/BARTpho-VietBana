@@ -1368,7 +1368,6 @@ class Sentence:
         for word in self.words:
             if '@' not in word.text:
                 for node in word.out_relations.values():
-                    #and (word.dst_word == '')
                     if node.type == 'TRANSLATE' :
                         word.dst_word = node.dst.text
                         for info in self.info:

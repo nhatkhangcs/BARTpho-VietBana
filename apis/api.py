@@ -13,7 +13,7 @@ from apis.routes.deleteword import deleteWord
 from apis.routes.reverseTranslation import reverseTranslate
 from starlette.middleware.cors import CORSMiddleware
 from GraphTranslation.common.languages import Languages
-
+from GraphTranslation.config.config import Config
 # from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
 app = FastAPI()
 
@@ -35,6 +35,7 @@ app.add_middleware(
 # read area.yaml file to check for current area. If GiaLai then keep
 # else delete current area.yaml file
 delete = False
+area = 'GiaLai'
 if os.path.exists("data/cache/info.yaml"):
     with open('data/cache/info.yaml', 'r+') as f:
         # if the "area" field is not GiaLai then delete
@@ -64,4 +65,32 @@ yaml.dump({"SRC": Languages.SRC}, open("data/cache/info.yaml", "a"))
 # append DST into info.yaml
 yaml.dump({"DST": Languages.DST}, open("data/cache/info.yaml", "a"))
 
-print(open("data/cache/info.yaml", "r").read())
+
+datapath = "data/" + area + '/'
+# count number of sentences in train, valid, test of the area
+with open(datapath + Config.src_monolingual_paths[0], "r", encoding='utf-8') as f1:
+    src_train_count = len(f1.readlines())
+with open(datapath + Config.src_monolingual_paths[1], "r", encoding='utf-8') as f2:
+    src_valid_count = len(f2.readlines())
+with open(datapath + Config.src_mono_test_paths[0], "r", encoding='utf-8') as f3:
+    src_test_count = len(f3.readlines())
+with open(datapath + Config.dst_monolingual_paths[0], "r", encoding='utf-8') as f4:
+    dst_train_count = len(f4.readlines())
+with open(datapath + Config.dst_monolingual_paths[1], "r", encoding='utf-8') as f5:
+    dst_valid_count = len(f5.readlines())
+with open(datapath + Config.dst_mono_test_paths[0], "r", encoding='utf-8') as f6:
+    dst_test_count = len(f6.readlines())
+
+with open("data/cache/info.yaml", "a") as f:
+    yaml.dump({
+        "src_train": src_train_count,
+        "src_valid": src_valid_count,
+        "src_test": src_test_count,
+        "dst_train": dst_train_count,
+        "dst_valid": dst_valid_count,
+        "dst_test": dst_test_count
+    }, f)
+
+with open("data/cache/info.yaml", "r") as f:
+    print(f.read())
+

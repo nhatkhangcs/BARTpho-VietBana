@@ -18,25 +18,36 @@ class Config(metaclass=Singleton):
 
     dst_words_paths = "dictionary/dict.ba"
     src_words_paths = "dictionary/dict.vi"
+    
     src_monolingual_paths = [
         "parallel_corpus/train.vi", "parallel_corpus/valid.vi"]
     dst_monolingual_paths = [
         "parallel_corpus/train.ba", "parallel_corpus/valid.ba"]
+    
+    src_mono_test_paths = ["parallel_corpus/test.vi"]
+    dst_mono_test_paths = ["parallel_corpus/test.ba"]
+
     parallel_paths = [("parallel_corpus/train.vi", "parallel_corpus/train.ba"),
                       ("parallel_corpus/valid.vi", "parallel_corpus/valid.ba"),
                       ("dictionary/dict.vi", "dictionary/dict.ba")]
+
+    src_custom_ner_path = "GraphTranslation/data/custom_ner/vi_ner.json"
+    dst_custom_ner_path = "GraphTranslation/data/custom_ner/ba_ner.json"
 
     # ----------------------------------------- #
 
     src_syn_path = "data/synonyms/vi_syn_data_1.json"
     dst_syn_path = None
-    src_custom_ner_path = "GraphTranslation/data/custom_ner/vi_ner.json"
-    dst_custom_ner_path = "GraphTranslation/data/custom_ner/ba_ner.json"
+
     graph_cache_path = "data/cache/graph.json"
     graph_cache_path_1 = "data/cache/graph_1.json"
     activate_path = "data/cache/activation.txt"
     logging_folder = "logs"
     # vncorenlp_host = "http://172.28.0.23"
+
+    # ----------------------------------------- #
+
+
     vncorenlp_host = "http://localhost"
     vncorenlp_port = 9000
     cache_size = 10000
