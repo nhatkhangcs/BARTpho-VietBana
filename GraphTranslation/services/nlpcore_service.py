@@ -119,7 +119,6 @@ class SrcNLPCoreService(NLPCoreService):
         return set()
 
 
-
     @staticmethod
     def combine_ner(words: [SentWord]):
         new_words = []
@@ -184,7 +183,7 @@ class SrcNLPCoreService(NLPCoreService):
         new_list = []
         for token in list_wseg:
             if token['nerLabel'] == "O":
-                for idx, word in enumerate(token['form'].split("_")):
+                for word in token['form'].split("_"):
                     wordinfo = {key:value for key, value in token.items()}
                     wordinfo['index'] = len(new_list) + 1
                     wordinfo['form'] = word
@@ -193,11 +192,26 @@ class SrcNLPCoreService(NLPCoreService):
                 new_list.append(token)
         
         return new_list
+    
+    def ba_annotate(self, paragraph):
+        output_list = []
+        format = {'index':0, 'form':"", 'posTag':"V", 'nerLabel':"O", 'head':0, 'depLabel':"root"}
+        for sentence in paragraph.split('.'):
+            sentence = sentence.strip()
+            temp_list = []
+            for idx, word in enumerate([i for i in sentence.split(' ') if i != ""]):
+                word_info = format.copy()
+                word_info['form'] = word
+                word_info['index'] = idx + 1
+                temp_list.append(word_info)
+            output_list.append(temp_list)
+        return output_list
 
     def _annotate(self, text):
-        text = text.strip()
-        for c in string.punctuation:
-            text = text.replace(c, f" {c} ")
+        if Languages.SRC == 'VI':
+            text = text.strip()
+            for c in string.punctuation:
+                text = text.replace(c, f" {c} ")
 
         while "\n\n" in text:
             text = text.replace("\n\n", "\n")
@@ -207,10 +221,13 @@ class SrcNLPCoreService(NLPCoreService):
             text += "."
         words = [{"form": "@", "nerLabel": "O", "posTag": "", "head": None, "index": 0}]
         for paragraph in paragraphs:
-            p_sentences = self.nlpcore_connector.annotate(text=paragraph)["sentences"] # Trả về NER và posTag of each token
+            if Languages.SRC == 'VI':
+                p_sentences = self.nlpcore_connector.annotate(text=paragraph)["sentences"] # Trả về NER và posTag of each token
+            else:
+                p_sentences = self.ba_annotate(paragraph)
 
             for sentence in p_sentences:
-                print("After CoreNLP segmentation: ", [f"{i['index']}:{i['form']}" for i in sentence])
+                print("After segmentation: ", [f"{i['index']}:{i['form']}" for i in sentence])
                 sentence = self.NER_filter(sentence)
                 print("After filter NER segmentation: ", [f"{i['index']}:{i['form']}" for i in sentence])
                 offset = len(words) - 1
