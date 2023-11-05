@@ -12,7 +12,7 @@ data/cache
 .DS_Store
 khangEnv/
 TTS/
-testvncore/
+vncorenlp1/
 virrosluo/
 app.py
 README.md
