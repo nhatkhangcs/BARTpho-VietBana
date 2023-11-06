@@ -5,15 +5,20 @@ from functools import lru_cache
 
 from GraphTranslation.services.base_service import BaseServiceSingleton
 from model.custom_mbart_model import CustomMbartModel
+from GraphTranslation.common.languages import Languages
 
 
 class ModelTranslator(BaseServiceSingleton):
-    def __init__(self, area, checkpoint_path: str = "pretrained/best_aligned"):
+    def __init__(self, area, checkpoint_path: str = ""):
         super(ModelTranslator, self).__init__(area)
         if torch.cuda.is_available():
             self.device = "cuda:0"
         else:
             self.device = "cpu"
+        if Languages.SRC == "VI":
+            checkpoint_path = "pretrained/best_aligned"
+        else:
+            checkpoint_path = "pretrained/best_aligned_bavi"
         self.tokenizer = AutoTokenizer.from_pretrained(checkpoint_path)
         self.model = CustomMbartModel.from_pretrained(checkpoint_path).to(self.device)
         self.model = self.model.eval()

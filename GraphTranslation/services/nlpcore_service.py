@@ -205,6 +205,21 @@ class SrcNLPCoreService(NLPCoreService):
                 word_info['index'] = idx + 1
                 temp_list.append(word_info)
             output_list.append(temp_list)
+        
+        # loop items is output_list
+        sentence_punc = ',.:"!?'
+        for item in output_list:
+            # if form contains characters in sentece_punc --> seperate it into an output_list
+            if any([True for i in item if i['form'] in sentence_punc]):
+                temp_list = []
+                for idx, word in enumerate(item):
+                    if word['form'] in sentence_punc:
+                        output_list.append(temp_list)
+                        temp_list = []
+                    else:
+                        temp_list.append(word)
+                output_list.append(temp_list)
+                output_list.remove(item)
         return output_list
 
     def _annotate(self, text):
@@ -305,7 +320,6 @@ class DstNLPCoreService(NLPCoreService):
         return output
 
     def word_segmentation(self, text):
-
         text = " ".join(word_tokenize(text))
         text = f" {text} "
         original_text = text

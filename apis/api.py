@@ -45,8 +45,8 @@ if os.path.exists("data/cache/info.yaml"):
             delete = True
         
 if delete:
-    if os.path.exists("data/cache/area.yaml"):
-        os.remove("data/cache/area.yaml")
+    if os.path.exists("data/cache/info.yaml"):
+        os.remove("data/cache/info.yaml")
 
     if os.path.exists("data/cache/graph.json"):
         os.remove("data/cache/graph.json")

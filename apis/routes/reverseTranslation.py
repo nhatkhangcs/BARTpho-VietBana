@@ -1,5 +1,4 @@
 from GraphTranslation.apis.routes.base_route import BaseRoute
-from objects.data import ModifyData
 
 # import Adder
 from pipeline.reverseTranslation import reverseTrans

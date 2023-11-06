@@ -6,10 +6,9 @@ grand_dir = os.path.abspath(os.path.join(parent_dir, '..'))
 # Add the directories to sys.path
 sys.path.extend([script_dir, parent_dir, grand_dir])
 
-
+import yaml
 from GraphTranslation.services.base_service import BaseServiceSingleton
 from pipeline.translation import Translator
-import os
 from objects.singleton import Singleton
 
 class ChangeCorpus(BaseServiceSingleton):
@@ -18,21 +17,19 @@ class ChangeCorpus(BaseServiceSingleton):
         self.area = area
 
     def changeCorpus(self, changeTo):
-        #translator = Translator(area=changeTo)
-        #print(dict(Singleton._instances))
-        #if (changeTo != self.area):
-        if os.path.exists("data/cache/graph.json"):
-            os.remove("data/cache/graph.json")
-            
+        if os.path.exists("data/cache/info.yaml"):
+            with open("data/cache/info.yaml", "r", encoding="utf-8") as f:
+                # take "area" key from info.yaml
+                data = yaml.safe_load(f)
+                area = data.get('area', None)
+                if area == changeTo:
+                    return
+        
         for cls in dict(Singleton._instances).keys():
             del Singleton._instances[cls]
             cls = None
             
         self.area = changeTo
-        # create area.yaml file
-        with open("data/cache/area.yaml", "w") as f:
-            f.write("area: " + changeTo)
-        #return newTrans
 
     def __call__(self, changeTo):
         res = self.changeCorpus(changeTo=changeTo)

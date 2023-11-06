@@ -22,13 +22,6 @@ class DeleteWord(BaseServiceSingleton):
         self.area = area
 
     def remove_word(self, word):
-        # remove active tasks
-        # i = app.control.inspect()
-        # jobs = i.active()
-        # for hostname in jobs:
-        #     tasks = jobs[hostname]
-        #     for task in tasks:
-        #         app.control.revoke(task['id'], terminate=True)
         full_path_dict_vi = "data/" + self.area + "/dictionary/dict.vi"
         full_path_dict_ba = "data/" + self.area + "/dictionary/dict.ba"
 
@@ -45,10 +38,6 @@ class DeleteWord(BaseServiceSingleton):
             del self.vi[index]
             del self.ba[index]
             flag = True
-        
-
-        # call add_word_to_dict function
-        # add_word_to_dict(word, translation)
 
         if flag:
             # rewrite files
@@ -59,17 +48,12 @@ class DeleteWord(BaseServiceSingleton):
                 for line in self.ba:
                     f.write(line + "\n")
 
-            if os.path.exists("data/cache/graph.json"):
-                os.remove("data/cache/graph.json")
-
             for cls in dict(Singleton._instances).keys():
                 del Singleton._instances[cls]
 
-            # print("Added new words")
             return True
 
         else:
-            # print("Words exist in dictionary")
             return False
 
     def __call__(self, word):
