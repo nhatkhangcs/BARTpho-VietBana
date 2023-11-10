@@ -199,8 +199,17 @@ class Translator(BaseServiceSingleton):
                 if reply=='y':
                     break
                 else:
+                    choosable = False
+                    for items in control_mapped:
+                        if len(items[1]) > 1:
+                            choosable = True
+                            break
                     # find words in control_mapped
-                    candidate_output = self.printMenu(control_mapped, candidate_output)
+                    if choosable:
+                        candidate_output = self.printMenu(control_mapped, candidate_output)
+                    else:
+                        print("Sorry, that's the best we can do now")
+                        break
                 
             output = candidate_output
             return self.post_process(output)
