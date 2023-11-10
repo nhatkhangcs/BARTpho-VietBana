@@ -1365,14 +1365,23 @@ class Sentence:
         return self.words
 
     def update_mapped_words_list(self):
+        multi_translated_list = []
         for word in self.words:
             if '@' not in word.text:
+                myList = []
+                # key is word.text
                 for node in word.out_relations.values():
-                    if node.type == 'TRANSLATE' :
+                    if node.type == 'TRANSLATE':
+                        myList.append(node.dst.text)
                         word.dst_word = node.dst.text
                         for info in self.info:
                             if info['text'] == word.text:
                                 info['mapped_word'] = node.dst.text
+                
+                if len(myList) > 1:                    
+                    multi_translated_list.append(((word.text,word.dst_word), myList))
+            
+        return multi_translated_list
 
 
     @staticmethod
@@ -1487,7 +1496,8 @@ class TranslationGraph(Graph):
 
     def update_src_sentence(self):
         if self.src_sent is not None:
-            self.src_sent.update_mapped_words_list() # Update mapping word in here
+            multi_list = self.src_sent.update_mapped_words_list() # Update mapping word in here
+            return multi_list
 
     @staticmethod
     def update_sentence_relation(relation: Relation):
