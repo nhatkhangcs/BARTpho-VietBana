@@ -1,6 +1,6 @@
 #data
 **/.env/
-pretrained
+pretrained/*
 __pycache__
 .idea
 */.idea
