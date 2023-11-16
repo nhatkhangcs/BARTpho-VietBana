@@ -43,26 +43,19 @@ class Translator(BaseServiceSingleton):
         print("Do you want to change the current translation of any of the following words?")
         
         for i, items in enumerate(list_of_words):
-            # print("Current translation:", output)
-            current_word = items[0][1]
-            # highlighted_word = '\033[1;30;43m' + current_word + '\033[m'
-            # highlighted_output = output.replace(current_word, highlighted_word, 1)
             print("Current translation:", output)
+            current_word = items[0][1]
             print("Candidates words:")
             for index, candidate in enumerate(list(items[1])):
                 print(index, '-----', candidate)
             choice = int(input("Choose index: "))
             chosen_word = items[1][choice]
-            # hightlight chosen word in output to be blue
-            # chosen_word = '\033[34m' + items[1][choice] + '\033[m'
             output = output.replace(current_word, chosen_word, 1)
             # update list of words
             item_list = list(items[0])
             item_list[1] = chosen_word
             list_of_words[i] = (tuple(item_list), items[1])
 
-        # make output text all white and black terminal
-        # output = output.replace('\033[34m', '').replace('\033[m', '')
         print("Current translation:", output)
         return output
 

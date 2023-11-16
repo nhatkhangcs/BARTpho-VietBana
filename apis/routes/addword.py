@@ -24,7 +24,7 @@ class addWord(BaseRoute):
     def add_word_func(self, data: AddData):
         success = self.pipeline(data.word, data.translation)
         if success:
-            TranslateRoute.changePipelineAdjust(area=self.area)
+            TranslateRoute.changePipelineRemoveGraph(area=self.area)
             return "Words added successfully"
         else:
             return "Words already exists"

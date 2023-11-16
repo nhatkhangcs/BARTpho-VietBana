@@ -32,41 +32,41 @@ app.add_middleware(
 #app.mount("/to-speech", StaticFiles(directory=os.path.abspath("to-speech")), name="to-speech")
 
 # app.include_router(GraphTranslateRoute().router)
-# read area.yaml file to check for current area. If GiaLai then keep
+# read area.yaml file to check for current area. If KonTum then keep
 # else delete current area.yaml file
+
+if not os.path.exists('data/cache/VIBA'):
+    os.mkdir('data/cache/VIBA/')
+
+if not os.path.exists('data/cache/BAVI'):
+    os.mkdir('data/cache/BAVI/')
+
 delete = False
-area = 'GiaLai'
-if os.path.exists("data/cache/info.yaml"):
+determined_json_graph = 'data/cache/VIBA/{area}-graph.json'.format(area='KonTum')
+if os.path.exists(determined_json_graph):
     with open('data/cache/info.yaml', 'r+') as f:
-        # if the "area" field is not GiaLai then delete
+        # if the "area" field is not KonTum then delete
         data = yaml.safe_load(f)
         area = data.get('area', None)
-        if area != 'GiaLai':
+        src = data.get('SRC', None)
+        dst = data.get('DST', None)
+        if src != 'VI' or dst != 'BA':
             delete = True
         
 if delete:
     if os.path.exists("data/cache/info.yaml"):
         os.remove("data/cache/info.yaml")
 
-    if os.path.exists("data/cache/graph.json"):
-        os.remove("data/cache/graph.json")
-              
-app.include_router(TranslateRoute("GiaLai").router)
-#app.include_router(SpeakRoute().router)
-app.include_router(addWord("GiaLai").router)
-app.include_router(updateWord("GiaLai").router)
-app.include_router(changeCorpus("GiaLai").router)
-app.include_router(deleteWord("GiaLai").router)
-app.include_router(reverseTranslate("GiaLai").router)
+    if os.path.exists(determined_json_graph):
+        os.remove(determined_json_graph)
 
-yaml.dump({"area": "GiaLai"}, open("data/cache/info.yaml", "w"))
+yaml.dump({"area": "KonTum"}, open("data/cache/info.yaml", "w"))
 # append SRC into info.yaml
 yaml.dump({"SRC": Languages.SRC}, open("data/cache/info.yaml", "a"))
 # append DST into info.yaml
 yaml.dump({"DST": Languages.DST}, open("data/cache/info.yaml", "a"))
 
-
-datapath = "data/" + area + '/'
+datapath = "data/" + 'KonTum/'
 # count number of sentences in train, valid, test of the area
 with open(datapath + Config.src_monolingual_paths[0], "r", encoding='utf-8') as f1:
     src_train_count = len(f1.readlines())
@@ -94,3 +94,10 @@ with open("data/cache/info.yaml", "a") as f:
 with open("data/cache/info.yaml", "r") as f:
     print(f.read())
 
+app.include_router(TranslateRoute("KonTum").router)
+#app.include_router(SpeakRoute().router)
+app.include_router(addWord("KonTum").router)
+app.include_router(updateWord("KonTum").router)
+app.include_router(changeCorpus("KonTum").router)
+app.include_router(deleteWord("KonTum").router)
+app.include_router(reverseTranslate("KonTum").router)

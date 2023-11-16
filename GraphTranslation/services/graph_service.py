@@ -1,7 +1,7 @@
 import os
 import string
 import json
-import re
+import yaml
 
 from tqdm import tqdm
 import numpy as np
@@ -269,27 +269,35 @@ class GraphService(BaseServiceSingleton):
     #     self.src_re = re.compile(r" | ".join(src_words))
 
     def load_graph(self):
-        if not os.path.exists(self.config.graph_cache_path):
+        determined_json_graph = ''
+        with open('data/cache/info.yaml', 'r+') as f:
+        # if the "area" field is not KonTum then delete
+            data = yaml.safe_load(f)
+            src = data.get('SRC', None)
+                
+        determined_json_graph = ''
+        if src == 'VI':
+            determined_json_graph = 'data/cache/VIBA/{area}-graph.json'.format(area=self.area)
+        else:
+            determined_json_graph = 'data/cache/BAVI/{area}-graph.json'.format(area=self.area)
+        if not os.path.exists(determined_json_graph):
             self.load_punctuation()
             self.load_from_dictionary()
             # self.load_from_parallel_corpus()
             self.load_from_monolingual_corpus()
             self.load_synonym_dictionary()
-            folder, _ = os.path.split(self.config.graph_cache_path)
+            folder, _ = os.path.split(determined_json_graph)
             os.makedirs(folder, exist_ok=True)
             json.dump(self.graph.dict,
-                      open(self.config.graph_cache_path, "w", encoding="utf8"), ensure_ascii=False, indent=4)
+                      open(determined_json_graph, "w", encoding="utf8"), ensure_ascii=False, indent=4)
             self.logger.info(
-                f"STORE GRAPH TO CACHE at {self.config.graph_cache_path}")
+                f"STORE GRAPH TO CACHE at {determined_json_graph}")
         self.graph = Graph.from_json(
-            json.load(open(self.config.graph_cache_path, "r", encoding="utf8")))
+            json.load(open(determined_json_graph, "r", encoding="utf8")))
         self.logger.info(
-            f"LOAD GRAPH FROM CACHE at {self.config.graph_cache_path}")
+            f"LOAD GRAPH FROM CACHE at {determined_json_graph}")
         # self.build_translation_re()
 
-    '''
-    Khang
-    '''
     # def load_graph_with_path(self):
     #     if not os.path.exists(self.config.activate_path):
     #         self.load_punctuation()
