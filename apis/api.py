@@ -57,9 +57,6 @@ if delete:
     if os.path.exists("data/cache/info.yaml"):
         os.remove("data/cache/info.yaml")
 
-    if os.path.exists(determined_json_graph):
-        os.remove(determined_json_graph)
-
 yaml.dump({"area": "KonTum"}, open("data/cache/info.yaml", "w"))
 # append SRC into info.yaml
 yaml.dump({"SRC": Languages.SRC}, open("data/cache/info.yaml", "a"))

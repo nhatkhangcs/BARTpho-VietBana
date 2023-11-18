@@ -7,10 +7,15 @@ from apis.routes.translation import TranslateRoute
 class reverseTranslate(BaseRoute):
     def __init__(self, area):
         super(reverseTranslate, self).__init__(prefix="/bana-vi")
-        self.pipeline = reverseTrans(area)
         self.area = area
+        self.pipeline = reverseTrans(self.area)
 
     def reverseTranslation(self):
+        with open('data/cache/info.yaml', 'r+') as f:
+            # if the "area" field is not KonTum then delete
+            data = yaml.safe_load(f)
+            area = data.get('area', None)
+            self.area = area
         success = self.pipeline()
         if success:
             TranslateRoute.changePipelineReverse(area=self.area)

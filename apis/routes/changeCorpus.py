@@ -12,6 +12,7 @@ from objects.data import Corpus
 from pipeline.changeCorpus import ChangeCorpus
 from apis.routes.translation import TranslateRoute
 
+
 class changeCorpus(BaseRoute):
     def __init__(self, area):
         super(changeCorpus, self).__init__(prefix="/changeCorpus")
@@ -21,6 +22,7 @@ class changeCorpus(BaseRoute):
     def change_corpus_func(self, data: Corpus):
         self.pipeline(data.area)
         TranslateRoute.changePipelineAdjustCorpus(area=data.area)
+    
         return "Changed corpus area to " + data.area
         
     def create_routes(self):

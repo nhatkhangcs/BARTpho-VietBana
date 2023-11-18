@@ -33,7 +33,6 @@ class Translator(BaseServiceSingleton):
         for char in special_chars:
             if char in output:
                 output = output.replace(' '+char, char)
-        output = output[0].capitalize() + output[1:]
         return output
     
     def printMenu(self, list_of_words: list, output: str):
@@ -45,11 +44,14 @@ class Translator(BaseServiceSingleton):
         for i, items in enumerate(list_of_words):
             print("Current translation:", output)
             current_word = items[0][1]
+            print("Current word:", current_word)
             print("Candidates words:")
             for index, candidate in enumerate(list(items[1])):
                 print(index, '-----', candidate)
             choice = int(input("Choose index: "))
             chosen_word = items[1][choice]
+            print("Chosen word:", chosen_word)
+            # update output
             output = output.replace(current_word, chosen_word, 1)
             # update list of words
             item_list = list(items[0])
@@ -205,10 +207,12 @@ class Translator(BaseServiceSingleton):
                         break
                 
             output = candidate_output
+            output = output[0].capitalize() + output[1:]
             return self.post_process(output)
 
         else:
             output = self.model_translator.translate(text)
+            output = output[0].capitalize() + output[1:]
             return self.post_process(output)
 
 

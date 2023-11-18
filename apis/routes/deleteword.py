@@ -9,7 +9,7 @@ sys.path.extend([script_dir, parent_dir, grand_dir])
 
 from GraphTranslation.apis.routes.base_route import BaseRoute
 from objects.data import textInput
-
+import yaml
 # import Adder
 from pipeline.deleteword import DeleteWord
 from apis.routes.translation import TranslateRoute
@@ -18,10 +18,15 @@ from apis.routes.translation import TranslateRoute
 class deleteWord(BaseRoute):
     def __init__(self, area):
         super(deleteWord, self).__init__(prefix="/deleteword")
-        self.pipeline = DeleteWord(area)
         self.area = area
+        self.pipeline = DeleteWord(self.area)
 
     def delete_func(self, data: textInput):
+        with open('data/cache/info.yaml', 'r+') as f:
+            # if the "area" field is not KonTum then delete
+            data = yaml.safe_load(f)
+            area = data.get('area', None)
+            self.area = area
         success = self.pipeline(data.text)
         if success:
             TranslateRoute.changePipelineRemoveGraph(area=self.area)
