@@ -8,7 +8,8 @@ grand_dir = os.path.abspath(os.path.join(parent_dir, '..'))
 sys.path.extend([script_dir, parent_dir, grand_dir])
 
 from GraphTranslation.apis.routes.base_route import BaseRoute
-from objects.data import AddData
+from GraphTranslation.common.languages import Languages
+from objects.data import AddData, statusMessage
 import yaml
 # import Adder
 from pipeline.addword import Adder
@@ -30,9 +31,9 @@ class addWord(BaseRoute):
         success = self.pipeline(data.word, data.translation)
         if success:
             TranslateRoute.changePipelineRemoveGraph(area=self.area)
-            return "Words added successfully"
+            return statusMessage(200,"Words added successfully","", Languages.SRC == 'VI')        
         else:
-            return "Words already exists"
+            return statusMessage(400,"Words already exists","",Languages.SRC == 'VI')
     
     def create_routes(self):
         router = self.router

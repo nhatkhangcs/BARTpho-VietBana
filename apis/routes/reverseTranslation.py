@@ -3,6 +3,7 @@ import yaml
 # import Adder
 from pipeline.reverseTranslation import reverseTrans
 from apis.routes.translation import TranslateRoute
+from objects.data import statusMessage
 
 class reverseTranslate(BaseRoute):
     def __init__(self, area):
@@ -24,7 +25,8 @@ class reverseTranslate(BaseRoute):
                 data = yaml.safe_load(f)
                 src = data.get('SRC', None)
                 dst = data.get('DST', None)
-            return f"{src} - {dst} dictionary translation updated successfully"
+            # return f"{src} - {dst} dictionary translation updated successfully"
+            return statusMessage(200,f"Dictionary translation updated successfully from {src} to {dst}","", src == 'VI')
         else:
             return "Cannot reverse translation"
     

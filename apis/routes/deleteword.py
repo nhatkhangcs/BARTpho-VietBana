@@ -13,6 +13,8 @@ import yaml
 # import Adder
 from pipeline.deleteword import DeleteWord
 from apis.routes.translation import TranslateRoute
+from GraphTranslation.common.languages import Languages
+from objects.data import statusMessage
 
 
 class deleteWord(BaseRoute):
@@ -30,9 +32,9 @@ class deleteWord(BaseRoute):
         success = self.pipeline(data.text)
         if success:
             TranslateRoute.changePipelineRemoveGraph(area=self.area)
-            return "Word deleted successfully"
+            return statusMessage(200,"Words deleted successfully","", Languages.SRC == 'VI')
         else:
-            return "No words found"
+            return statusMessage(400,"Words not found","",Languages.SRC == 'VI')
     
     def create_routes(self):
         router = self.router

@@ -1,6 +1,6 @@
 from GraphTranslation.apis.routes.base_route import BaseRoute
 
-from objects.data import Data, OutData
+from objects.data import Data, statusMessage
 from pipeline.translation import Translator
 import os
 import yaml
@@ -21,7 +21,7 @@ class TranslateRoute(BaseRoute):
         #print("addresss of pipeline:", TranslateRoute.pipeline)
         out_str = TranslateRoute.pipeline(data.text, model=data.model)
         #print("Translating data")
-        return OutData(src=data.text, tgt=out_str)
+        return statusMessage(200, "Translated successfully", out_str, Languages.SRC == 'VI')
     
     @staticmethod
     def changePipelineRemoveGraph(area: str):
@@ -159,7 +159,7 @@ class TranslateRoute(BaseRoute):
     def create_routes(self):
         router = self.router
 
-        @router.post("/vi_ba")
+        @router.get("/vi_ba")
         async def translate(data: Data):
             return await self.wait(TranslateRoute.translate_func, data)
 

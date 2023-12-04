@@ -4,6 +4,8 @@ import yaml
 # import Adder
 from pipeline.updateword import Update
 from apis.routes.translation import TranslateRoute
+from objects.data import statusMessage
+from GraphTranslation.common.languages import Languages
 
 class updateWord(BaseRoute):
     def __init__(self, area):
@@ -20,9 +22,9 @@ class updateWord(BaseRoute):
         success = self.pipeline(data.word, data.translation)
         if success:
             TranslateRoute.changePipelineRemoveGraph(area=self.area)
-            return "Word updated successfully"
+            return statusMessage(200,"Words updated successfully","", Languages.SRC == 'VI')
         else:
-            return "Could not find word or new meaning is unchanged"
+            return statusMessage(400,"Words not found","",Languages.SRC == 'VI')
     
     def create_routes(self):
         router = self.router

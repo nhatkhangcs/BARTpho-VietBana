@@ -43,15 +43,6 @@ class textInput(BaseModel):
     def __init__(self, text: str):
         super(textInput, self).__init__(text=text)
         self.text = text
-
-class OutData(BaseModel):
-    src: str
-    tgt: str
-
-    def __init__(self, src: str, tgt: str = None):
-        super(OutData, self).__init__(src=src, tgt=tgt)
-        self.src = src
-        self.tgt = tgt
         
 class DataSpeechDelete(BaseModel):
     urls: List[str]
@@ -78,3 +69,17 @@ class OutDataSpeech(BaseModel):
         super(OutDataSpeech, self).__init__(speech=speech, speech_fm=speech_fm)
         self.speech = speech
         self.speech_fm = speech_fm
+
+
+class statusMessage(BaseModel):
+    status: int
+    message: str
+    data: str
+    fromVI: bool
+
+    def __init__(self, status: int, message: str, data: str, fromVI: bool):
+        super(statusMessage, self).__init__(status=status, message=message, data=data, fromVI=fromVI)
+        self.status = status
+        self.message = message
+        self.data = data
+        self.fromVI = fromVI
