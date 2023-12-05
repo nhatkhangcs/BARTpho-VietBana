@@ -3,9 +3,11 @@ from objects.data import ModifyData
 import yaml
 # import Adder
 from pipeline.updateword import Update
-from apis.routes.translation import TranslateRoute
+from apis.routes.VIBA_translation import VIBA_translate
+from apis.routes.BAVI_translation import BAVI_translate
 from objects.data import statusMessage
 from GraphTranslation.common.languages import Languages
+
 
 class updateWord(BaseRoute):
     def __init__(self, area):
@@ -21,14 +23,17 @@ class updateWord(BaseRoute):
             self.area = area
         success = self.pipeline(data.word, data.translation)
         if success:
-            TranslateRoute.changePipelineRemoveGraph(area=self.area)
-            return statusMessage(200,"Words updated successfully","", Languages.SRC == 'VI')
+            if Languages.SRC == 'VI':
+                VIBA_translate.changePipelineRemoveGraph(area=self.area)
+            else:
+                BAVI_translate.changePipelineRemoveGraph(area=self.area)
+            return statusMessage(200,"Word updated successfully","", Languages.SRC == 'VI')
         else:
-            return statusMessage(400,"Words not found","",Languages.SRC == 'VI')
+            return statusMessage(400,"Word not found","",Languages.SRC == 'VI')
     
     def create_routes(self):
         router = self.router
 
-        @router.post("/vi_ba")
+        @router.post("/app")
         async def add_word(data: ModifyData):
             return await self.wait(self.update_word, data)

@@ -8,6 +8,7 @@ sys.path.extend([script_dir, parent_dir, grand_dir])
 
 from GraphTranslation.services.base_service import BaseServiceSingleton
 from objects.singleton import Singleton
+from GraphTranslation.common.languages import Languages
 
 class Adder(BaseServiceSingleton):
     def __init__(self, area):
@@ -29,10 +30,21 @@ class Adder(BaseServiceSingleton):
         # create pairs of words
         
         for word, translation in zip(words, translations):
-            if word in self.vi:
-                if translation in self.ba:
-                    continue
-                
+            if Languages.SRC == 'VI': # add translation into VI BA dictionary
+                if word in self.vi:
+                    if translation in self.ba:
+                        continue
+                    
+                    else:
+                        flag = True
+                        self.ba.append(translation)
+                        self.vi.append(word)
+                        # write to file
+                        with open(full_path_dict_vi, "a", encoding="utf-8") as f:
+                            f.write(word + "\n")
+                        with open(full_path_dict_ba, "a", encoding="utf-8") as f:
+                            f.write(translation + "\n")
+
                 else:
                     flag = True
                     self.ba.append(translation)
@@ -43,15 +55,30 @@ class Adder(BaseServiceSingleton):
                     with open(full_path_dict_ba, "a", encoding="utf-8") as f:
                         f.write(translation + "\n")
 
-            else:
-                flag = True
-                self.ba.append(translation)
-                self.vi.append(word)
-                # write to file
-                with open(full_path_dict_vi, "a", encoding="utf-8") as f:
-                    f.write(word + "\n")
-                with open(full_path_dict_ba, "a", encoding="utf-8") as f:
-                    f.write(translation + "\n")
+            else: # add translation into BA VI dictionary
+                if word in self.ba:
+                    if translation in self.vi:
+                        continue
+                    
+                    else:
+                        flag = True
+                        self.ba.append(word)
+                        self.vi.append(translation)
+                        # write to file
+                        with open(full_path_dict_vi, "a", encoding="utf-8") as f:
+                            f.write(translation + "\n")
+                        with open(full_path_dict_ba, "a", encoding="utf-8") as f:
+                            f.write(word + "\n")
+
+                else:
+                    flag = True
+                    self.ba.append(word)
+                    self.vi.append(translation)
+                    # write to file
+                    with open(full_path_dict_vi, "a", encoding="utf-8") as f:
+                        f.write(translation + "\n")
+                    with open(full_path_dict_ba, "a", encoding="utf-8") as f:
+                        f.write(word + "\n")
 
         if flag:
             for cls in dict(Singleton._instances).keys():

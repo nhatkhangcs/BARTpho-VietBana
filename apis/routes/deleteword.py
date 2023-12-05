@@ -12,7 +12,8 @@ from objects.data import textInput
 import yaml
 # import Adder
 from pipeline.deleteword import DeleteWord
-from apis.routes.translation import TranslateRoute
+from apis.routes.VIBA_translation import VIBA_translate
+from apis.routes.VIBA_translation import VIBA_translate
 from GraphTranslation.common.languages import Languages
 from objects.data import statusMessage
 
@@ -31,7 +32,10 @@ class deleteWord(BaseRoute):
             self.area = area
         success = self.pipeline(data.text)
         if success:
-            TranslateRoute.changePipelineRemoveGraph(area=self.area)
+            if Languages.SRC == 'VI':
+                VIBA_translate.changePipelineRemoveGraph(area=self.area)
+            else:
+                VIBA_translate.changePipelineRemoveGraph(area=self.area)
             return statusMessage(200,"Words deleted successfully","", Languages.SRC == 'VI')
         else:
             return statusMessage(400,"Words not found","",Languages.SRC == 'VI')
@@ -39,6 +43,6 @@ class deleteWord(BaseRoute):
     def create_routes(self):
         router = self.router
 
-        @router.post("/vi_ba")
+        @router.post("/app")
         async def delete_word(data: textInput):
             return await self.wait(self.delete_func, data)

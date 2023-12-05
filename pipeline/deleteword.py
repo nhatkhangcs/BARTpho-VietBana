@@ -8,7 +8,7 @@ grand_dir = os.path.abspath(os.path.join(parent_dir, '..'))
 # Add the directories to sys.path
 sys.path.extend([script_dir, parent_dir, grand_dir])
 
-
+from GraphTranslation.common.languages import Languages
 # import translator
 
 # app = Celery('addword', broker='redis://127.0.0.1/0', backend='redis://127.0.0.1/0')
@@ -33,11 +33,19 @@ class DeleteWord(BaseServiceSingleton):
         # check if word exist in dictionary. If yes, return nothing
         # create pairs of words
 
-        while word in self.vi:
-            index = self.vi.index(word)
-            del self.vi[index]
-            del self.ba[index]
-            flag = True
+        if Languages.SRC == 'VI':
+            while word in self.vi:
+                index = self.vi.index(word)
+                del self.vi[index]
+                del self.ba[index]
+                flag = True
+            
+        else:
+            while word in self.ba:
+                index = self.ba.index(word)
+                del self.vi[index]
+                del self.ba[index]
+                flag = True
 
         if flag:
             # rewrite files

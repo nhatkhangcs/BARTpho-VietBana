@@ -16,7 +16,7 @@ class GraphTranslateRoute(BaseRoute):
     def create_routes(self):
         router = self.router
 
-        @router.post("/vi_ba")
+        @router.post("/app")
         async def translate(data: Data):
             print("XXX")
             return await self.wait(self.translate_func, data)

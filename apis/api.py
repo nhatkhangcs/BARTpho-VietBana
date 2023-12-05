@@ -3,14 +3,14 @@ from fastapi import FastAPI
 import os
 
 # from apis.routes.graph_translate import GraphTranslateRoute
-from apis.routes.translation import TranslateRoute
+from apis.routes.VIBA_translation import VIBA_translate
 #from apis.routes.texttospeech import SpeakRoute
 from apis.routes.addword import addWord
 from apis.routes.update import updateWord
 from apis.routes.changeCorpus import changeCorpus
 from apis.routes.deleteword import deleteWord
 # from fastapi.middleware.cors import CORSMiddleware
-from apis.routes.reverseTranslation import reverseTranslate
+from apis.routes.BAVI_translation import BAVI_translate
 from starlette.middleware.cors import CORSMiddleware
 from GraphTranslation.common.languages import Languages
 from GraphTranslation.config.config import Config
@@ -91,10 +91,10 @@ with open("data/cache/info.yaml", "a") as f:
 with open("data/cache/info.yaml", "r") as f:
     print(f.read())
 
-app.include_router(TranslateRoute("KonTum").router)
+app.include_router(VIBA_translate("KonTum").router)
 #app.include_router(SpeakRoute().router)
 app.include_router(addWord("KonTum").router)
 app.include_router(updateWord("KonTum").router)
 app.include_router(changeCorpus("KonTum").router)
 app.include_router(deleteWord("KonTum").router)
-app.include_router(reverseTranslate("KonTum").router)
+app.include_router(BAVI_translate("KonTum").router)

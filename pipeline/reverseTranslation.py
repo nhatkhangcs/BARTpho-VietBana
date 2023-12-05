@@ -11,6 +11,7 @@ from GraphTranslation.services.base_service import BaseServiceSingleton
 # import translator
 from objects.singleton import Singleton
 from GraphTranslation.config.config import Config
+from GraphTranslation.common.languages import Languages
 
 # app = Celery('addword', broker='redis://127.0.0.1/0', backend='redis://127.0.0.1/0')
 
@@ -29,7 +30,7 @@ class reverseTrans(BaseServiceSingleton):
                                  (Config.dst_monolingual_paths[1], Config.src_monolingual_paths[1]), 
                                  (Config.dst_words_paths, Config.src_words_paths)]
         Config.src_custom_ner_path, Config.dst_custom_ner_path = Config.dst_custom_ner_path, Config.src_custom_ner_path
-        
+        Languages.SRC, Languages.DST = Languages.DST, Languages.SRC
         
         print("reverse translation completed")
         return True
