@@ -21,7 +21,7 @@ class DeleteWord(BaseServiceSingleton):
         self.ba = []
         self.area = area
 
-    def remove_word(self, word):
+    def remove_word(self, word, fromVI):
         full_path_dict_vi = "data/" + self.area + "/dictionary/dict.vi"
         full_path_dict_ba = "data/" + self.area + "/dictionary/dict.ba"
 
@@ -33,7 +33,7 @@ class DeleteWord(BaseServiceSingleton):
         # check if word exist in dictionary. If yes, return nothing
         # create pairs of words
 
-        if Languages.SRC == 'VI':
+        if fromVI:
             while word in self.vi:
                 index = self.vi.index(word)
                 del self.vi[index]
@@ -64,8 +64,8 @@ class DeleteWord(BaseServiceSingleton):
         else:
             return False
 
-    def __call__(self, word):
-        res = self.remove_word(word)
+    def __call__(self, word, fromVI):
+        res = self.remove_word(word, fromVI)
         return res
 
 

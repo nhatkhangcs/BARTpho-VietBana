@@ -23,7 +23,6 @@ class VIBA_translate(BaseRoute):
             VIBA_translate.pipelineRev()
             VIBA_translate.pipeline = Translator(VIBA_translate.area)
 
-
             if os.path.exists("data/cache/info.yaml"):
                 os.remove("data/cache/info.yaml")
                 with open("data/cache/info.yaml", "w") as f:

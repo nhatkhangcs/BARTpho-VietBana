@@ -12,18 +12,20 @@ class Data(BaseModel):
 
 class AddData(BaseModel):
     # word and translation are both array type
-    word: List[str]
-    translation: List[str]
-
-    def __init__(self, word, translation):
-        super(AddData, self).__init__(word=word, translation=translation)
-        self.word = word
-        self.translation = translation
-
-class ModifyData(BaseModel):
-    # word and translation are both array type
     word: str
     translation: str
+    fromVI: bool
+
+    def __init__(self, word, translation, src):
+        super(AddData, self).__init__(word=word, translation=translation, src=src)
+        self.word = word
+        self.translation = translation
+        self.src = src
+
+class ModifyData(BaseModel):
+    word: str
+    translation: str
+    fromVI: bool
 
     def __init__(self, word, translation):
         super(ModifyData, self).__init__(word=word, translation=translation)
@@ -39,6 +41,7 @@ class Corpus(BaseModel):
 
 class textInput(BaseModel):
     text: str
+    fromVI: bool
 
     def __init__(self, text: str):
         super(textInput, self).__init__(text=text)

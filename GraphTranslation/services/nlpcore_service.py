@@ -208,18 +208,30 @@ class SrcNLPCoreService(NLPCoreService):
         
         # loop items is output_list
         sentence_punc = ',.:"!?'
-        for item in output_list:
-            # if form contains characters in sentece_punc --> seperate it into an output_list
-            if any([True for i in item if i['form'] in sentence_punc]):
-                temp_list = []
-                for idx, word in enumerate(item):
-                    if word['form'] in sentence_punc:
-                        output_list.append(temp_list)
-                        temp_list = []
-                    else:
-                        temp_list.append(word)
-                output_list.append(temp_list)
-                output_list.remove(item)
+        for sublist in output_list:
+            for item in sublist:
+                if any(char in item['form'] for char in sentence_punc):
+                    print("Found", item)
+                    temp_list = []
+                    # item is a dictionary
+                    for idx, word in enumerate([i for i in item['form'].split(' ') if i != ""]):
+                        word_info = format.copy()
+                        word_info['form'] = word
+                        word_info['index'] = idx + 1
+                        temp_list.append(word_info)
+                    sublist[sublist.index(item)] = temp_list
+                    print("After split: ", sublist)
+            
+        # remove items that form is ''
+        output_list[0] = [i for i in output_list[0] if i['form'] != '']
+        
+        # reindex
+        for idx, item in enumerate(output_list[0]):
+            item['index'] = idx + 1
+
+        print('After split: ', output_list[0])
+
+                    
         return output_list
 
     def _annotate(self, text):

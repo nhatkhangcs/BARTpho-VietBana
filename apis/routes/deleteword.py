@@ -27,10 +27,10 @@ class deleteWord(BaseRoute):
     def delete_func(self, data: textInput):
         with open('data/cache/info.yaml', 'r+') as f:
             # if the "area" field is not KonTum then delete
-            data = yaml.safe_load(f)
-            area = data.get('area', None)
+            dt = yaml.safe_load(f)
+            area = dt.get('area', None)
             self.area = area
-        success = self.pipeline(data.text)
+        success = self.pipeline(data.text, data.fromVI)
         if success:
             if Languages.SRC == 'VI':
                 VIBA_translate.changePipelineRemoveGraph(area=self.area)

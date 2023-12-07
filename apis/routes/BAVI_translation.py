@@ -107,7 +107,6 @@ class BAVI_translate(BaseRoute):
         BAVI_translate.pipeline = Translator(area)
     
     
-
     def create_routes(self):
         router = self.router
 

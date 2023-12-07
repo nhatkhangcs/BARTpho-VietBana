@@ -18,7 +18,7 @@ class Update(BaseServiceSingleton):
         self.ba = []
         self.area = area
 
-    def update(self, word, translation):
+    def update(self, word, translation, fromVI):
         full_path_dict_vi = "data/" + self.area + "/dictionary/dict.vi"
         full_path_dict_ba = "data/" + self.area + "/dictionary/dict.ba"
 
@@ -27,7 +27,7 @@ class Update(BaseServiceSingleton):
         with open(full_path_dict_ba, "r", encoding="utf-8") as f:
             self.ba = [line.strip() for line in f.readlines()]
         
-        if Languages.SRC == 'VI':
+        if fromVI:
             if word in self.vi:
                 if self.ba[self.vi.index(word)] == translation:
                     return False
@@ -46,7 +46,7 @@ class Update(BaseServiceSingleton):
 
                 return True
         
-        elif Languages.SRC == 'BA':
+        else:
             if word in self.ba:
                 if self.vi[self.ba.index(word)] == translation:
                     return False
@@ -65,17 +65,6 @@ class Update(BaseServiceSingleton):
 
                 return True
 
-        else:
-            return False
-
-    def __call__(self, word, translation):
-        res = self.update(word, translation)
+    def __call__(self, word, translation, fromVI):
+        res = self.update(word, translation, fromVI)
         return res
-
-
-if __name__ == "__main__":
-    updator = Update()
-    if (updator("nothing", "special")):
-        print("added")
-    else:
-        print("failed")
