@@ -31,15 +31,10 @@ def get_metric(metric_, tokenizer_):
         # pres and labels are pairs
         # filter out if labels == -100 or preds == -100
         preds = np.where(preds != -100, preds, tokenizer_.pad_token_id)
-        
-        
         decoded_preds = tokenizer_.batch_decode(preds, skip_special_tokens=True)
         # Replace -100 in the labels as we can't decode them.
 
         labels = np.where(labels != -100, labels, tokenizer_.pad_token_id)
-        # for label in labels:
-        #     if -100 in label:
-        #         print(label)
         decoded_labels = tokenizer_.batch_decode(labels, skip_special_tokens=True)
         # Some simple post-processing
         # print(decoded_labels)
